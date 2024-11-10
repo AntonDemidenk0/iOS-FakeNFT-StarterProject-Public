@@ -18,6 +18,7 @@ final class CatalogTableViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupLayout()
+        selectionStyle = .none
     }
     
     required init?(coder: NSCoder) {
@@ -37,7 +38,6 @@ final class CatalogTableViewCell: UITableViewCell {
             collectionImageView.topAnchor.constraint(equalTo: contentView.topAnchor),
             collectionImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             collectionImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            collectionImageView.heightAnchor.constraint(equalToConstant: 179),
             
             footerView.topAnchor.constraint(equalTo: collectionImageView.bottomAnchor),
             footerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -62,8 +62,29 @@ final class CatalogTableViewCell: UITableViewCell {
         titleLabel.textColor = .label
     }
 
-    func configure(with title: String, image: UIImage?) {
-        titleLabel.text = title
-        collectionImageView.image = image ?? UIImage(named: "placeholder")
+    func configure(with title: String, nftCount: Int, imageUrl: String) {
+        titleLabel.text = "\(title) (\(nftCount))"
+        loadImage(from: imageUrl)
+    }
+    
+    private func loadImage(from urlString: String) {
+        guard let url = URL(string: urlString) else {
+            print("Invalid image URL: \(urlString)")
+            return
+        }
+
+        URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
+            if let error = error {
+                print("Failed to load image: \(error.localizedDescription)")
+                return
+            }
+            guard let data = data, let image = UIImage(data: data) else {
+                print("Failed to decode image data")
+                return
+            }
+            DispatchQueue.main.async {
+                self?.collectionImageView.image = image
+            }
+        }.resume()
     }
 }

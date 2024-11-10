@@ -4,6 +4,7 @@ typealias NftCompletion = (Result<Nft, Error>) -> Void
 
 protocol NftService {
     func loadNft(id: String, completion: @escaping NftCompletion)
+    func fetchCollections(completion: @escaping (Result<[NFTCollection], Error>) -> Void)
 }
 
 final class NftServiceImpl: NftService {
@@ -31,6 +32,30 @@ final class NftServiceImpl: NftService {
             case .failure(let error):
                 completion(.failure(error))
             }
+        }
+    }
+    
+    func fetchCollections(completion: @escaping (Result<[NFTCollection], Error>) -> Void) {
+        
+        struct FetchCollectionsRequest: NetworkRequest {
+            var endpoint: URL? {
+                URL(string: "\(RequestConstants.baseURL)/api/v1/collections")
+            }
+
+            var httpMethod: HttpMethod {
+                .get
+            }
+
+            var dto: Dto? {
+                nil
+            }
+        }
+
+        let request = FetchCollectionsRequest()
+        print("Fetching collections from \(request.endpoint?.absoluteString ?? "Invalid URL")")
+        networkClient.send(request: request, type: [NFTCollection].self) { result in
+            print("Fetch result: \(result)")
+            completion(result)
         }
     }
 }

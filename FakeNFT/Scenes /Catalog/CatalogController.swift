@@ -7,6 +7,7 @@ final class CatalogViewController: UIViewController {
     
     private let tableView = UITableView()
     private let sortButton = UIButton()
+    private var collections: [NFTCollection] = []
     
     init(servicesAssembly: ServicesAssembly) {
         self.servicesAssembly = servicesAssembly
@@ -23,12 +24,7 @@ final class CatalogViewController: UIViewController {
         view.backgroundColor = .systemBackground
         setupSortButton()
         setupTableView()
-        
-//        view.addSubview(testNftButton)
-//        testNftButton.constraintCenters(to: view)
-//        testNftButton.setTitle(Constants.openNftTitle, for: .normal)
-//        testNftButton.addTarget(self, action: #selector(showNft), for: .touchUpInside)
-//        testNftButton.setTitleColor(.systemBlue, for: .normal)
+        fetchCollections()
     }
     
     private func setupTableView() {
@@ -61,6 +57,21 @@ final class CatalogViewController: UIViewController {
         ])
     }
     
+    private func fetchCollections() {
+        servicesAssembly.nftService.fetchCollections { [weak self] (result: Result<[NFTCollection], Error>) in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let collections):
+                    print("Fetched collections: \(collections)")
+                    self?.collections = collections
+                    self?.tableView.reloadData()
+                case .failure(let error):
+                    print("Failed to fetch collections:", error.localizedDescription)
+                }
+            }
+        }
+    }
+    
     @objc
     private func sortButtonTapped() {
         let alertController = UIAlertController(
@@ -90,10 +101,8 @@ final class CatalogViewController: UIViewController {
             style: .cancel
         )
         alertController.addAction(closeAction)
-        
         present(alertController, animated: true)
     }
-
 
     @objc
     func showNft() {
@@ -111,7 +120,7 @@ private enum Constants {
 
 extension CatalogViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 10
+        return collections.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -119,7 +128,30 @@ extension CatalogViewController: UITableViewDelegate, UITableViewDataSource {
             return UITableViewCell()
         }
         
-        cell.configure(with: "Collection \(indexPath.row + 1)", image: UIImage(named: "placeholder"))
+        let collection = collections[indexPath.row]
+        let nftCount = collection.nfts.count
+        print("Configuring cell with collection: \(collection)")
+        cell.configure(with: collection.name, nftCount: nftCount, imageUrl: collection.cover)
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 179
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        cell.alpha = 0
+        cell.transform = CGAffineTransform(translationX: 0, y: 20)
+
+        UIView.animate(
+            withDuration: 0.4,
+            delay: 0.03 * Double(indexPath.row),
+            options: [.curveEaseInOut],
+            animations: {
+                cell.alpha = 1
+                cell.transform = .identity
+            },
+            completion: nil
+        )
     }
 }
