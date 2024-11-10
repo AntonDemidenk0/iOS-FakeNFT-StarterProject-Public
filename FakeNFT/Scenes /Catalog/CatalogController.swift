@@ -63,11 +63,37 @@ final class CatalogViewController: UIViewController {
     
     @objc
     private func sortButtonTapped() {
-        let assembly = NftDetailAssembly(servicesAssembler: servicesAssembly)
-        let nftInput = NftDetailInput(id: Constants.testNftId)
-        let nftViewController = assembly.build(with: nftInput)
-        present(nftViewController, animated: true)
+        let alertController = UIAlertController(
+            title: NSLocalizedString("Sort.title", comment: ""),
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+        
+        let sortByNameAction = UIAlertAction(
+            title: NSLocalizedString("Sort.byName", comment: "По названию"),
+            style: .default
+        ) { _ in
+            print("Sort by name selected")
+        }
+        alertController.addAction(sortByNameAction)
+        
+        let sortByCountAction = UIAlertAction(
+            title: NSLocalizedString("Sort.byCount", comment: "По количеству"),
+            style: .default
+        ) { _ in
+            print("Sort by count selected")
+        }
+        alertController.addAction(sortByCountAction)
+        
+        let closeAction = UIAlertAction(
+            title: NSLocalizedString("Sort.close", comment: "Закрыть"),
+            style: .cancel
+        )
+        alertController.addAction(closeAction)
+        
+        present(alertController, animated: true)
     }
+
 
     @objc
     func showNft() {
