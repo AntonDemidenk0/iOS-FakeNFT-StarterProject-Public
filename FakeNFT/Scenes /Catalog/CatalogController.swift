@@ -34,6 +34,7 @@ final class CatalogViewController: UIViewController {
     private func setupTableView() {
         view.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.separatorStyle = .none
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: sortButton.bottomAnchor, constant: 20),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
@@ -89,8 +90,6 @@ final class CatalogViewController: UIViewController {
         // Сохраняем текущую сортировку
         currentSortOption = option
         sortOptionManager.save(option)
-
-        // Сортируем коллекции
         filteredCollections = collections
         switch option {
         case .none:

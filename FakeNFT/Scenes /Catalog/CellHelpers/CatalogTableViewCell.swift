@@ -88,7 +88,8 @@ final class CatalogTableViewCell: UITableViewCell {
     }
 
     func configure(with name: String, nftCount: Int, imageUrl: String) {
-        titleLabel.text = "\(name) (\(nftCount))"
+        let capitalizedName = name.prefix(1).uppercased() + name.dropFirst()
+        titleLabel.text = "\(capitalizedName) (\(nftCount))"
         loadImage(from: imageUrl)
     }
 }
