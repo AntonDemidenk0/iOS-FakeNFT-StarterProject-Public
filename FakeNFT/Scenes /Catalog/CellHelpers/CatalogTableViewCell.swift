@@ -25,6 +25,31 @@ final class CatalogTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    private func loadImage(from urlString: String) {
+        if let cachedImage = ImageCache.shared.object(forKey: NSString(string: urlString)) {
+            collectionImageView.image = cachedImage
+            return
+        }
+
+        collectionImageView.image = UIImage(named: "placeholder")
+        guard let url = URL(string: urlString) else { return }
+
+        URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
+            if let error = error {
+                print("Failed to load image: \(error.localizedDescription)")
+                return
+            }
+            guard let data = data, let image = UIImage(data: data) else {
+                print("Failed to decode image data")
+                return
+            }
+            ImageCache.shared.setObject(image, forKey: NSString(string: urlString)) // Сохранение в кэш
+            DispatchQueue.main.async {
+                self?.collectionImageView.image = image
+            }
+        }.resume()
+    }
+
     private func setupLayout() {
         contentView.addSubview(collectionImageView)
         contentView.addSubview(footerView)
@@ -62,29 +87,8 @@ final class CatalogTableViewCell: UITableViewCell {
         titleLabel.textColor = .label
     }
 
-    func configure(with title: String, nftCount: Int, imageUrl: String) {
-        titleLabel.text = "\(title) (\(nftCount))"
+    func configure(with name: String, nftCount: Int, imageUrl: String) {
+        titleLabel.text = "\(name) (\(nftCount))"
         loadImage(from: imageUrl)
-    }
-    
-    private func loadImage(from urlString: String) {
-        guard let url = URL(string: urlString) else {
-            print("Invalid image URL: \(urlString)")
-            return
-        }
-
-        URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
-            if let error = error {
-                print("Failed to load image: \(error.localizedDescription)")
-                return
-            }
-            guard let data = data, let image = UIImage(data: data) else {
-                print("Failed to decode image data")
-                return
-            }
-            DispatchQueue.main.async {
-                self?.collectionImageView.image = image
-            }
-        }.resume()
     }
 }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct NFTCollection: Decodable {
+struct NFTCollection: Decodable, Equatable {
     let id: String
     let name: String
     let cover: String
@@ -15,3 +15,4 @@ struct NFTCollection: Decodable {
     let description: String
     let author: String
 }
+

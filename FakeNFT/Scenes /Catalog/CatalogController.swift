@@ -3,12 +3,15 @@ import UIKit
 final class CatalogViewController: UIViewController {
 
     let servicesAssembly: ServicesAssembly
-//    let testNftButton = UIButton()
-    
+
     private let tableView = UITableView()
     private let sortButton = UIButton()
     private var collections: [NFTCollection] = []
-    
+    private var filteredCollections: [NFTCollection] = []
+    private var currentSortOption: SortOption = .none
+    private let sortOptionManager = SortOptionManager()
+    private var isLoading = false
+
     init(servicesAssembly: ServicesAssembly) {
         self.servicesAssembly = servicesAssembly
         super.init(nibName: nil, bundle: nil)
@@ -24,9 +27,10 @@ final class CatalogViewController: UIViewController {
         view.backgroundColor = .systemBackground
         setupSortButton()
         setupTableView()
+        currentSortOption = sortOptionManager.load()
         fetchCollections()
     }
-    
+
     private func setupTableView() {
         view.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -36,18 +40,18 @@ final class CatalogViewController: UIViewController {
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -17),
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
-        
+
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(CatalogTableViewCell.self, forCellReuseIdentifier: CatalogTableViewCell.identifier)
     }
-    
+
     private func setupSortButton() {
         view.addSubview(sortButton)
         sortButton.setImage(UIImage(named: "sort"), for: .normal)
         sortButton.tintColor = .label
         sortButton.addTarget(self, action: #selector(sortButtonTapped), for: .touchUpInside)
-        
+
         sortButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             sortButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 14),
@@ -56,15 +60,24 @@ final class CatalogViewController: UIViewController {
             sortButton.heightAnchor.constraint(equalToConstant: 20)
         ])
     }
-    
+
     private func fetchCollections() {
+        guard !isLoading else { return }
+        isLoading = true
+
         servicesAssembly.nftService.fetchCollections { [weak self] (result: Result<[NFTCollection], Error>) in
             DispatchQueue.main.async {
+                self?.isLoading = false
                 switch result {
                 case .success(let collections):
-                    print("Fetched collections: \(collections)")
-                    self?.collections = collections
-                    self?.tableView.reloadData()
+                    if self?.collections != collections {
+                        print("Updating collections data")
+                        self?.collections = collections
+                        self?.filteredCollections = collections
+                        self?.applySortOption(self?.currentSortOption ?? .none, reloadTable: true) // Применение сортировки и обновление
+                    } else {
+                        print("No changes in collections data.")
+                    }
                 case .failure(let error):
                     print("Failed to fetch collections:", error.localizedDescription)
                 }
@@ -72,6 +85,28 @@ final class CatalogViewController: UIViewController {
         }
     }
     
+    private func applySortOption(_ option: SortOption, reloadTable: Bool = false) {
+        // Сохраняем текущую сортировку
+        currentSortOption = option
+        sortOptionManager.save(option)
+
+        // Сортируем коллекции
+        filteredCollections = collections
+        switch option {
+        case .none:
+            break
+        case .byName:
+            filteredCollections.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        case .byCount:
+            filteredCollections.sort { $0.nfts.count > $1.nfts.count }
+        }
+
+        print("Applying sort: \(option). Filtered collections count: \(filteredCollections.count)")
+        UIView.performWithoutAnimation {
+            tableView.reloadData()
+        }
+    }
+
     @objc
     private func sortButtonTapped() {
         let alertController = UIAlertController(
@@ -79,23 +114,25 @@ final class CatalogViewController: UIViewController {
             message: nil,
             preferredStyle: .actionSheet
         )
-        
+
         let sortByNameAction = UIAlertAction(
             title: NSLocalizedString("Sort.byName", comment: "По названию"),
             style: .default
-        ) { _ in
+        ) { [weak self] _ in
+            self?.applySortOption(.byName, reloadTable: true)
             print("Sort by name selected")
         }
         alertController.addAction(sortByNameAction)
-        
+
         let sortByCountAction = UIAlertAction(
             title: NSLocalizedString("Sort.byCount", comment: "По количеству"),
             style: .default
-        ) { _ in
+        ) { [weak self] _ in
+            self?.applySortOption(.byCount, reloadTable: true)
             print("Sort by count selected")
         }
         alertController.addAction(sortByCountAction)
-        
+
         let closeAction = UIAlertAction(
             title: NSLocalizedString("Sort.close", comment: "Закрыть"),
             style: .cancel
@@ -103,55 +140,24 @@ final class CatalogViewController: UIViewController {
         alertController.addAction(closeAction)
         present(alertController, animated: true)
     }
-
-    @objc
-    func showNft() {
-        let assembly = NftDetailAssembly(servicesAssembler: servicesAssembly)
-        let nftInput = NftDetailInput(id: Constants.testNftId)
-        let nftViewController = assembly.build(with: nftInput)
-        present(nftViewController, animated: true)
-    }
-}
-
-private enum Constants {
-    static let openNftTitle = NSLocalizedString("Catalog.openNft", comment: "")
-    static let testNftId = "7773e33c-ec15-4230-a102-92426a3a6d5a"
 }
 
 extension CatalogViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return collections.count
+        return filteredCollections.count
     }
-
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: CatalogTableViewCell.identifier, for: indexPath) as? CatalogTableViewCell else {
             return UITableViewCell()
         }
-        
-        let collection = collections[indexPath.row]
-        let nftCount = collection.nfts.count
-        print("Configuring cell with collection: \(collection)")
-        cell.configure(with: collection.name, nftCount: nftCount, imageUrl: collection.cover)
+
+        let collection = filteredCollections[indexPath.row]
+        cell.configure(with: collection.name, nftCount: collection.nfts.count, imageUrl: collection.cover)
         return cell
     }
-    
+
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 179
-    }
-    
-    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        cell.alpha = 0
-        cell.transform = CGAffineTransform(translationX: 0, y: 20)
-
-        UIView.animate(
-            withDuration: 0.4,
-            delay: 0.03 * Double(indexPath.row),
-            options: [.curveEaseInOut],
-            animations: {
-                cell.alpha = 1
-                cell.transform = .identity
-            },
-            completion: nil
-        )
     }
 }
