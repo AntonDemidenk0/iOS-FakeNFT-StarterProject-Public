@@ -1,4 +1,6 @@
 import UIKit
+import ProgressHUD
+
 
 final class CatalogViewController: UIViewController {
 
@@ -27,6 +29,7 @@ final class CatalogViewController: UIViewController {
         view.backgroundColor = .systemBackground
         setupSortButton()
         setupTableView()
+        progressLoader()
         currentSortOption = sortOptionManager.load()
         fetchCollections()
     }
@@ -66,8 +69,10 @@ final class CatalogViewController: UIViewController {
         guard !isLoading else { return }
         isLoading = true
 
+        ProgressHUD.show("Loading...")
         servicesAssembly.nftService.fetchCollections { [weak self] (result: Result<[NFTCollection], Error>) in
             DispatchQueue.main.async {
+                ProgressHUD.dismiss()
                 self?.isLoading = false
                 switch result {
                 case .success(let collections):
@@ -81,9 +86,16 @@ final class CatalogViewController: UIViewController {
                     }
                 case .failure(let error):
                     print("Failed to fetch collections:", error.localizedDescription)
+                    ProgressHUD.showError("Failed to load data")
                 }
             }
         }
+    }
+    
+    private func progressLoader() {
+        ProgressHUD.colorBackground = .systemBackground
+        ProgressHUD.colorAnimation = .systemBlue
+        ProgressHUD.animationType = .circleStrokeSpin
     }
     
     private func applySortOption(_ option: SortOption, reloadTable: Bool = false) {
