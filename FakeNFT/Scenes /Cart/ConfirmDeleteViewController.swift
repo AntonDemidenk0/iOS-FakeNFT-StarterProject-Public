@@ -10,7 +10,7 @@ import ProgressHUD
 
 final class ConfirmDeleteViewController: UIViewController {
     
-    private let contentView: UIView = {
+    private lazy var contentView: UIView = {
         let view = UIView()
         view.backgroundColor = .clear
         view.layer.cornerRadius = 12
@@ -18,7 +18,7 @@ final class ConfirmDeleteViewController: UIViewController {
         return view
     }()
     
-    private let itemImageView: UIImageView = {
+    private lazy var itemImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
         imageView.layer.cornerRadius = 12
@@ -27,7 +27,7 @@ final class ConfirmDeleteViewController: UIViewController {
         return imageView
     }()
     
-    private let messageLabel: UILabel = {
+    private lazy var messageLabel: UILabel = {
         let label = UILabel()
         label.text = "Вы уверены, что хотите\nудалить объект из корзины?"
         label.font = .systemFont(ofSize: 13, weight: .medium)

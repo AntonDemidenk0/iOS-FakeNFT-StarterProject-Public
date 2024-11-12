@@ -169,29 +169,62 @@ final class CartViewController: UIViewController, LoadingView, ErrorView {
     }
 
     @objc private func sortItems() {
+        let currentSortType = SortType.load()
+        
         let alertController = UIAlertController(title: "Сортировка", message: nil, preferredStyle: .actionSheet)
         
-        alertController.addAction(UIAlertAction(title: "По цене", style: .default, handler: { [weak self] _ in
-            self?.performSort(by: .price)
-        }))
+        let priceAction = UIAlertAction(
+            title: "По цене",
+            style: .default,
+            handler: { [weak self] _ in
+                self?.performSort(by: .price)
+            }
+        )
+        if currentSortType == .price {
+            priceAction.setValue(UIImage(systemName: "checkmark"), forKey: "image")
+        }
+        alertController.addAction(priceAction)
         
-        alertController.addAction(UIAlertAction(title: "По рейтингу", style: .default, handler: { [weak self] _ in
-            self?.performSort(by: .rating)
-        }))
+        let ratingAction = UIAlertAction(
+            title: "По рейтингу",
+            style: .default,
+            handler: { [weak self] _ in
+                self?.performSort(by: .rating)
+            }
+        )
+        if currentSortType == .rating {
+            ratingAction.setValue(UIImage(systemName: "checkmark"), forKey: "image")
+        }
+        alertController.addAction(ratingAction)
         
-        alertController.addAction(UIAlertAction(title: "По названию", style: .default, handler: { [weak self] _ in
-            self?.performSort(by: .name)
-        }))
+        let nameAction = UIAlertAction(
+            title: "По названию",
+            style: .default,
+            handler: { [weak self] _ in
+                self?.performSort(by: .name)
+            }
+        )
+        if currentSortType == .name {
+            nameAction.setValue(UIImage(systemName: "checkmark"), forKey: "image")
+        }
+        alertController.addAction(nameAction)
         
         alertController.addAction(UIAlertAction(title: "Закрыть", style: .cancel, handler: nil))
         
         present(alertController, animated: true, completion: nil)
     }
 
-    private enum SortType {
-        case price
-        case rating
-        case name
+    private enum SortType: String {
+        case price, rating, name
+
+        func save() {
+            UserDefaults.standard.set(self.rawValue, forKey: UserDefaultsKeys.sortType)
+        }
+
+        static func load() -> SortType {
+            let rawValue = UserDefaults.standard.string(forKey: UserDefaultsKeys.sortType)
+            return SortType(rawValue: rawValue ?? "") ?? .name
+        }
     }
 
     private func performSort(by type: SortType) {
@@ -203,6 +236,8 @@ final class CartViewController: UIViewController, LoadingView, ErrorView {
         case .name:
             cartItems.sort { $0.name < $1.name }
         }
+        
+        type.save()
         
         tableView.reloadData()
     }
@@ -229,6 +264,9 @@ final class CartViewController: UIViewController, LoadingView, ErrorView {
             case .success(let items):
                 print("✅ Успешно загружено \(items.count) товаров")
                 self.cartItems = items
+                
+                let savedSortType = SortType.load()
+                self.performSort(by: savedSortType)
                 self.updateView()
             case .failure(let error):
                 print("❌ Ошибка загрузки товаров: \(error)")
@@ -325,4 +363,8 @@ extension CartViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 140
     }
+}
+
+private enum UserDefaultsKeys {
+    static let sortType = "CartSortType"
 }

@@ -14,13 +14,13 @@ final class CartItemCell: UITableViewCell {
     
     private var deleteAction: (() -> Void)?
     
-    private let containerView: UIView = {
+    private lazy var containerView: UIView = {
         let view = UIView()
         view.backgroundColor = .clear
         return view
     }()
     
-    private let innerContainerView: UIView = {
+    private lazy var innerContainerView: UIView = {
         let view = UIView()
         view.backgroundColor = .systemBackground
         view.layer.cornerRadius = 12
@@ -28,7 +28,7 @@ final class CartItemCell: UITableViewCell {
         return view
     }()
     
-    private let itemImageView: UIImageView = {
+    private lazy var itemImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
         imageView.layer.cornerRadius = 12
@@ -36,25 +36,20 @@ final class CartItemCell: UITableViewCell {
         return imageView
     }()
     
-    private let nameLabel: UILabel = {
+    private lazy var nameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 17, weight: .medium)
         label.textColor = .black
         return label
     }()
     
-    private let starStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.alignment = .center
-        stackView.distribution = .fillEqually
-        stackView.spacing = 4
-        return stackView
+    private lazy var ratingImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        return imageView
     }()
     
-    private var starImageViews: [UIImageView] = []
-    
-    private let priceTitleLabel: UILabel = {
+    private lazy var priceTitleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 13, weight: .regular)
         label.textColor = .black
@@ -62,21 +57,21 @@ final class CartItemCell: UITableViewCell {
         return label
     }()
     
-    private let priceLabel: UILabel = {
+    private lazy var priceLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 17, weight: .bold)
         label.textColor = .black
         return label
     }()
     
-    private let deleteButton: UIButton = {
+    private lazy var deleteButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(resource: .delete), for: .normal)
         button.tintColor = .black
         return button
     }()
     
-    private let loadingIndicator: UIActivityIndicatorView = {
+    private lazy var loadingIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .medium)
         indicator.hidesWhenStopped = true
         return indicator
@@ -84,23 +79,12 @@ final class CartItemCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        setupStars()
         setupLayout()
         setupActions()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    private func setupStars() {
-        for _ in 1...5 {
-            let imageView = UIImageView()
-            imageView.contentMode = .scaleAspectFit
-            imageView.image = UIImage(systemName: "star")
-            starImageViews.append(imageView)
-            starStackView.addArrangedSubview(imageView)
-        }
     }
     
     private func setupActions() {
@@ -133,7 +117,7 @@ final class CartItemCell: UITableViewCell {
         innerContainerView.addSubview(itemImageView)
         itemImageView.addSubview(loadingIndicator)
         innerContainerView.addSubview(nameLabel)
-        innerContainerView.addSubview(starStackView)
+        innerContainerView.addSubview(ratingImageView)
         innerContainerView.addSubview(priceTitleLabel)
         innerContainerView.addSubview(priceLabel)
         innerContainerView.addSubview(deleteButton)
@@ -141,7 +125,7 @@ final class CartItemCell: UITableViewCell {
         itemImageView.translatesAutoresizingMaskIntoConstraints = false
         loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
-        starStackView.translatesAutoresizingMaskIntoConstraints = false
+        ratingImageView.translatesAutoresizingMaskIntoConstraints = false
         priceTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         priceLabel.translatesAutoresizingMaskIntoConstraints = false
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
@@ -158,14 +142,14 @@ final class CartItemCell: UITableViewCell {
             nameLabel.leadingAnchor.constraint(equalTo: itemImageView.trailingAnchor, constant: 20),
             nameLabel.topAnchor.constraint(equalTo: innerContainerView.topAnchor, constant: 8),
             
-            starStackView.leadingAnchor.constraint(equalTo: itemImageView.trailingAnchor, constant: 20),
-            starStackView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
-            starStackView.widthAnchor.constraint(equalToConstant: 68),
-            starStackView.heightAnchor.constraint(equalToConstant: 12),
+            ratingImageView.leadingAnchor.constraint(equalTo: itemImageView.trailingAnchor, constant: 20),
+            ratingImageView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
+            ratingImageView.widthAnchor.constraint(equalToConstant: 68),
+            ratingImageView.heightAnchor.constraint(equalToConstant: 12),
             
             priceTitleLabel.leadingAnchor.constraint(equalTo: itemImageView.trailingAnchor, constant: 20),
-            priceTitleLabel.topAnchor.constraint(equalTo: starStackView.bottomAnchor, constant: 12),
-                        
+            priceTitleLabel.topAnchor.constraint(equalTo: ratingImageView.bottomAnchor, constant: 12),
+            
             priceLabel.leadingAnchor.constraint(equalTo: itemImageView.trailingAnchor, constant: 20),
             priceLabel.topAnchor.constraint(equalTo: priceTitleLabel.bottomAnchor, constant: 2),
             
@@ -207,16 +191,21 @@ final class CartItemCell: UITableViewCell {
         
         updateStars(for: item.rating)
     }
-
+    
     private func updateStars(for rating: Int) {
-        for (index, imageView) in starImageViews.enumerated() {
-            if index < rating {
-                imageView.image = UIImage(systemName: "star.fill")
-                imageView.tintColor = .systemYellow
-            } else {
-                imageView.image = UIImage(systemName: "star")
-                imageView.tintColor = .systemGray
-            }
+        guard rating >= 0 && rating <= 5 else { return }
+        
+        let imageName: String
+        switch rating {
+        case 0: imageName = "stars_zero"
+        case 1: imageName = "stars_one"
+        case 2: imageName = "stars_two"
+        case 3: imageName = "stars_three"
+        case 4: imageName = "stars_four"
+        case 5: imageName = "stars_five"
+        default: return
         }
+        
+        ratingImageView.image = UIImage(named: imageName)
     }
 }
