@@ -1,8 +1,9 @@
 import UIKit
 import ProgressHUD
 
-
 final class CatalogViewController: UIViewController {
+
+    // MARK: - Properties
 
     let servicesAssembly: ServicesAssembly
 
@@ -14,6 +15,8 @@ final class CatalogViewController: UIViewController {
     private let sortOptionManager = SortOptionManager()
     private var isLoading = false
 
+    // MARK: - Initialization
+
     init(servicesAssembly: ServicesAssembly) {
         self.servicesAssembly = servicesAssembly
         super.init(nibName: nil, bundle: nil)
@@ -23,21 +26,26 @@ final class CatalogViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
         view.backgroundColor = .systemBackground
         setupSortButton()
         setupTableView()
-        progressLoader()
+        configureProgressHUD()
         currentSortOption = sortOptionManager.load()
         fetchCollections()
     }
+
+    // MARK: - Setup Methods
 
     private func setupTableView() {
         view.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.separatorStyle = .none
+        tableView.bounces = false
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: sortButton.bottomAnchor, constant: 20),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
@@ -65,6 +73,14 @@ final class CatalogViewController: UIViewController {
         ])
     }
 
+    private func configureProgressHUD() {
+        ProgressHUD.colorBackground = .systemBackground
+        ProgressHUD.colorAnimation = .systemBlue
+        ProgressHUD.animationType = .circleStrokeSpin
+    }
+
+    // MARK: - Data Fetching
+
     private func fetchCollections() {
         guard !isLoading else { return }
         isLoading = true
@@ -77,10 +93,9 @@ final class CatalogViewController: UIViewController {
                 switch result {
                 case .success(let collections):
                     if self?.collections != collections {
-                        print("Updating collections data")
                         self?.collections = collections
                         self?.filteredCollections = collections
-                        self?.applySortOption(self?.currentSortOption ?? .none, reloadTable: true) // Применение сортировки и обновление
+                        self?.applySortOption(self?.currentSortOption ?? .none, reloadTable: true)
                     } else {
                         print("No changes in collections data.")
                     }
@@ -91,18 +106,14 @@ final class CatalogViewController: UIViewController {
             }
         }
     }
-    
-    private func progressLoader() {
-        ProgressHUD.colorBackground = .systemBackground
-        ProgressHUD.colorAnimation = .systemBlue
-        ProgressHUD.animationType = .circleStrokeSpin
-    }
-    
+
+    // MARK: - Sorting
+
     private func applySortOption(_ option: SortOption, reloadTable: Bool = false) {
-        // Сохраняем текущую сортировку
         currentSortOption = option
         sortOptionManager.save(option)
         filteredCollections = collections
+
         switch option {
         case .none:
             break
@@ -113,10 +124,18 @@ final class CatalogViewController: UIViewController {
         }
 
         print("Applying sort: \(option). Filtered collections count: \(filteredCollections.count)")
-        UIView.performWithoutAnimation {
-            tableView.reloadData()
+
+        if reloadTable {
+            UIView.transition(
+                with: tableView,
+                duration: 0.3,
+                options: [.transitionCrossDissolve],
+                animations: { self.tableView.reloadData() }
+            )
         }
     }
+
+    // MARK: - Actions
 
     @objc
     private func sortButtonTapped() {
@@ -131,7 +150,6 @@ final class CatalogViewController: UIViewController {
             style: .default
         ) { [weak self] _ in
             self?.applySortOption(.byName, reloadTable: true)
-            print("Sort by name selected")
         }
         alertController.addAction(sortByNameAction)
 
@@ -140,7 +158,6 @@ final class CatalogViewController: UIViewController {
             style: .default
         ) { [weak self] _ in
             self?.applySortOption(.byCount, reloadTable: true)
-            print("Sort by count selected")
         }
         alertController.addAction(sortByCountAction)
 
@@ -153,18 +170,32 @@ final class CatalogViewController: UIViewController {
     }
 }
 
+// MARK: - UITableViewDelegate & UITableViewDataSource
+
 extension CatalogViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return filteredCollections.count
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: CatalogTableViewCell.identifier, for: indexPath) as? CatalogTableViewCell else {
             return UITableViewCell()
         }
 
         let collection = filteredCollections[indexPath.row]
-        cell.configure(with: collection.name, nftCount: collection.nfts.count, imageUrl: collection.cover)
+        let imageUrl = collection.cover
+        cell.configure(with: collection.name, nftCount: collection.nfts.count)
+        
+        ImageLoader.shared.loadImage(from: imageUrl) { [weak tableView] image in
+            guard let tableView = tableView else { return }
+            DispatchQueue.main.async {
+                guard let currentCell = tableView.cellForRow(at: indexPath) as? CatalogTableViewCell else {
+                    return
+                }
+                currentCell.updateImage(image)
+            }
+        }
+
         return cell
     }
 
