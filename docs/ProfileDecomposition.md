@@ -1,16 +1,16 @@
 
 1/3.
-    1    Верстка ProfileViewController — 2 часа
+    1    Верстка ProfileViewController — Ожидание: 2 часа - Факт: 3 часа
     ◦    Контейнеры для фото, имени, описания.
     ◦    UITableView для списка разделов.
     ◦    Кнопка редактирования.
     ◦    webView для открытия сайта пользователя.
-    2    UserProfileModel и ProfileService — 3 часа
+    2    UserProfileModel и ProfileService — Ожидание: 3 часа - Факт: 4 часа
     ◦    Создать модель UserProfile.
     ◦    Написать методы для выполнения запросов к API
     ◦    Прикрутить данные к ProfileViewController
     3    Функционал редактирования профиля — 2 часа
-    ◦    Верстка ProfileEditViewController
+    ◦    Верстка EditProfileViewController
     ◦    Прикрутить метод для put-запроса к API для обновления данных
         
 2/3. 
