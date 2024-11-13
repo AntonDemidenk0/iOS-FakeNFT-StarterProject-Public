@@ -152,7 +152,7 @@ final class PaymentViewController: UIViewController, LoadingView, ErrorView {
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             collectionView.bottomAnchor.constraint(equalTo: payButton.topAnchor, constant: -20),
             
-            bottomView.heightAnchor.constraint(equalToConstant: 152),
+            bottomView.heightAnchor.constraint(equalToConstant: 186),
             bottomView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             bottomView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             bottomView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
