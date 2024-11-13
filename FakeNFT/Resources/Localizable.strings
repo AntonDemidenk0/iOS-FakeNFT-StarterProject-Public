@@ -14,3 +14,5 @@
 "WebSite" = "Сайт";
 "ChangePhoto" = "Сменить\nфото";
 "LoadImage" = "Загрузить изображение";
+"EnterImageURL" = "Введите ссылку";
+"PleaseEnterURLForAvatar" = "Введите ссылку на изображение";

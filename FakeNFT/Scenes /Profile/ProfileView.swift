@@ -9,6 +9,8 @@ import UIKit
 final class ProfileView: UIView {
     
     var websiteLabelTapped: ((String) -> Void)?
+    private var nftsCount: Int = 0
+    private var likesCount: Int = 0
     
     // MARK: - UI Elements
     
@@ -151,6 +153,12 @@ final class ProfileView: UIView {
         }
         
         profileInfoLabel.text = profile.description ?? NSLocalizedString("NoInformation", comment: "")
+        
+        self.nftsCount = profile.nfts.count
+        self.likesCount = profile.likes.count
+        
+        profileTableView.reloadData()
+        
     }
 }
 
@@ -166,9 +174,9 @@ extension ProfileView: UITableViewDelegate, UITableViewDataSource {
         
         switch indexPath.row {
         case 0:
-            cell.textLabel?.text = NSLocalizedString("MyNFT", comment: "")
+            cell.textLabel?.text = NSLocalizedString("MyNFT", comment: "") + " (\(nftsCount))"
         case 1:
-            cell.textLabel?.text = NSLocalizedString("Favorites", comment: "")
+            cell.textLabel?.text = NSLocalizedString("Favorites", comment: "") + " (\(likesCount))"
         case 2:
             cell.textLabel?.text = NSLocalizedString("AboutDeveloper", comment: "")
         default:
