@@ -11,10 +11,12 @@ import WebKit
 import Kingfisher
 import ProgressHUD
 
+
 final class ProfileViewController: UIViewController {
     
     private let servicesAssembly: ServicesAssembly
     private let profileView = ProfileView()
+    private var profile: Profile?
     
     // MARK: - UI Elements
     private lazy var editProfileButton: UIButton = {
@@ -77,9 +79,9 @@ final class ProfileViewController: UIViewController {
             DispatchQueue.main.async {
                 ProgressHUD.dismiss()
                 switch result {
-                case .success(let profile):
-                    self?.profileView.updateUI(with: profile)
-                    print("\(profile.name), \(profile.avatar), \(profile.website)")
+                case .success(let loadedProfile):
+                    self?.profile = loadedProfile
+                    self?.profileView.updateUI(with: loadedProfile)
                 case .failure(let error):
                     print("error \(error)")
                 }
@@ -90,10 +92,26 @@ final class ProfileViewController: UIViewController {
     // MARK: - Actions
     
     @objc private func editProfileTapped() {
+        guard let profile = profile else { return }
+        editProfile(with: profile)
+    }
+    
+    private func editProfile(with profile: Profile) {
+        let editProfileVC = EditProfileViewController(profile: profile)
+        editProfileVC.delegate = self
+        
+        editProfileVC.modalPresentationStyle = .formSheet
+        present(editProfileVC, animated: true, completion: nil)
     }
     
     private func didTapOnWebsiteLabel(with urlString: String) {
-        guard let url = URL(string: urlString) else { return }
+        var validURLString = urlString
+        
+        if !urlString.hasPrefix("https://") {
+            validURLString = "https://\(urlString)"
+        }
+        
+        guard let url = URL(string: validURLString) else { return }
         
         let request = URLRequest(url: url)
         webView.load(request)
@@ -113,4 +131,32 @@ final class ProfileViewController: UIViewController {
     }
 }
 
+// MARK: - EditProfileDelegate
+extension ProfileViewController: EditProfileDelegate {
+        
+    func didUpdateProfile(_ profile: Profile) {
+        self.profile = profile
+        profileView.updateUI(with: profile)
+        
+        let name = profile.name ?? ""
+        let description = profile.description ?? ""
+        let website = profile.website ?? ""
+        let avatar = profile.avatar ?? ""
+    
+        
+        servicesAssembly.profileService.updateProfile(
+            name: name,
+            description: description,
+            website: website,
+            avatar: avatar
+        ) { result in
+            switch result {
+            case .success(let updatedProfile):
+                print("Profile successfully updated: \(updatedProfile)")
+            case .failure(let error):
+                print("Error updating profile: \(error)")
+            }
+        }
+    }
+}
 

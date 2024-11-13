@@ -9,3 +9,8 @@
 "Favorites" = "Избранные NFT";
 "AboutDeveloper" = "О разработчике";
 "NoInformation" = "Нет дополнительной информации";
+"Name" = "Имя";
+"Description" = "Описание";
+"WebSite" = "Сайт";
+"ChangePhoto" = "Сменить\nфото";
+"LoadImage" = "Загрузить изображение";

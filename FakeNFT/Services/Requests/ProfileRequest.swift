@@ -15,3 +15,39 @@ struct ProfileRequest: NetworkRequest {
     
     var dto: Dto? { nil }
 }
+
+struct ProfilePutRequest: NetworkRequest {
+    var endpoint: URL? {
+        URL(string: "\(RequestConstants.baseURL)/api/v1/profile/1")
+    }
+    var httpMethod: HttpMethod = .put
+    var dto: Dto?
+    
+    init(dto: ProfileDtoObject) {
+        self.dto = dto
+    }
+}
+
+struct ProfileDtoObject: Dto {
+    
+    let name: String
+    let description: String
+    let website: String
+    let avatar: String
+    
+    enum CodingKeys: String, CodingKey {
+        case name
+        case description
+        case website
+        case avatar
+    }
+    
+    func asDictionary() -> [String: String] {
+        return [
+            CodingKeys.name.rawValue: name.isEmpty ? "" : name,
+            CodingKeys.description.rawValue: description.isEmpty ? "" : description,
+            CodingKeys.website.rawValue: website.isEmpty ? "" : website,
+            CodingKeys.avatar.rawValue: avatar.isEmpty ? "" : avatar
+        ]
+    }
+}

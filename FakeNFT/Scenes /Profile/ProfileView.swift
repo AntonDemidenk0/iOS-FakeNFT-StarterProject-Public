@@ -31,7 +31,7 @@ final class ProfileView: UIView {
     
     private lazy var userWebSiteLabel: UILabel = {
         let label = UILabel()
-        label.text = "https://practicum.yandex.ru"
+        label.text = "practicum.yandex.ru"
         label.textColor = .systemBlue
         label.font = UIFont.systemFont(ofSize: 15)
         
@@ -47,7 +47,7 @@ final class ProfileView: UIView {
         label.text = NSLocalizedString("NoInformation", comment: "")
         label.textColor = UIColor(named: "YBlackColor")
         label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
-        label.numberOfLines = 4
+        label.numberOfLines = 5
         label.lineBreakMode = .byWordWrapping
         return label
     }()
@@ -144,7 +144,8 @@ final class ProfileView: UIView {
         }
         
         if let website = profile.website {
-            userWebSiteLabel.text = website
+            let cleanedWebsite = website.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "http://", with: "")
+            userWebSiteLabel.text = cleanedWebsite
         } else {
             userWebSiteLabel.isHidden = true
         }
