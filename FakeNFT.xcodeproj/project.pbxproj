@@ -114,6 +114,7 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		6902C5D02CE509F4001E9DED /* Rating */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Rating; sourceTree = "<group>"; };
 		6902C5D72CE50A99001E9DED /* ProfileInfo */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ProfileInfo; sourceTree = "<group>"; };
+		6902C5E02CE50B1E001E9DED /* NFTs */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = NFTs; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -342,6 +343,7 @@
 		6902C5D32CE50A74001E9DED /* Statistics */ = {
 			isa = PBXGroup;
 			children = (
+				6902C5E02CE50B1E001E9DED /* NFTs */,
 				6902C5D72CE50A99001E9DED /* ProfileInfo */,
 				6902C5D02CE509F4001E9DED /* Rating */,
 			);
@@ -394,6 +396,7 @@
 			fileSystemSynchronizedGroups = (
 				6902C5D02CE509F4001E9DED /* Rating */,
 				6902C5D72CE50A99001E9DED /* ProfileInfo */,
+				6902C5E02CE50B1E001E9DED /* NFTs */,
 			);
 			name = FakeNFT;
 			packageProductDependencies = (
