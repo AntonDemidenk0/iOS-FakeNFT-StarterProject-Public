@@ -121,16 +121,13 @@ final class EditProfileView: UIView {
         setupConstraints()
     }
     
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     private func setupViews() {
         backgroundColor = .white
-        [closeButton, profileAvatar, profileAvatarButton, loadImageButton, nameLabel, nameTextView, userInfoLabel, infoTextView, userSiteLabel, siteTextView].forEach { addSubview($0) }
-    }
-    
-    private func setupConstraints() {
         closeButton.translatesAutoresizingMaskIntoConstraints = false
         profileAvatar.translatesAutoresizingMaskIntoConstraints = false
         profileAvatarButton.translatesAutoresizingMaskIntoConstraints = false
@@ -141,52 +138,54 @@ final class EditProfileView: UIView {
         infoTextView.translatesAutoresizingMaskIntoConstraints = false
         userSiteLabel.translatesAutoresizingMaskIntoConstraints = false
         siteTextView.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            
-            closeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            closeButton.topAnchor.constraint(equalTo: topAnchor, constant: 30),
-            closeButton.heightAnchor.constraint(equalToConstant: 44),
-            closeButton.widthAnchor.constraint(equalToConstant: 44),
-            
-            profileAvatar.centerXAnchor.constraint(equalTo: centerXAnchor),
-            profileAvatar.topAnchor.constraint(equalTo: closeButton.bottomAnchor, constant: 22),
-            profileAvatar.widthAnchor.constraint(equalToConstant: 70),
-            profileAvatar.heightAnchor.constraint(equalToConstant: 70),
-            
-            profileAvatarButton.centerXAnchor.constraint(equalTo: profileAvatar.centerXAnchor),
-            profileAvatarButton.centerYAnchor.constraint(equalTo: profileAvatar.centerYAnchor),
-            profileAvatarButton.widthAnchor.constraint(equalToConstant: 70),
-            profileAvatarButton.heightAnchor.constraint(equalToConstant: 70),
-            
-            loadImageButton.topAnchor.constraint(equalTo: profileAvatar.bottomAnchor, constant: 4),
-            loadImageButton.centerXAnchor.constraint(equalTo: centerXAnchor),
-            
-            nameLabel.topAnchor.constraint(equalTo: profileAvatar.bottomAnchor, constant: 24),
-            nameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            
-            nameTextView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 8),
-            nameTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            nameTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            
-            userInfoLabel.topAnchor.constraint(equalTo: nameTextView.bottomAnchor, constant: 24),
-            userInfoLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            userInfoLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            
-            infoTextView.topAnchor.constraint(equalTo: userInfoLabel.bottomAnchor, constant: 8),
-            infoTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            infoTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            
-            userSiteLabel.topAnchor.constraint(equalTo: infoTextView.bottomAnchor, constant: 24),
-            userSiteLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            userSiteLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            
-            siteTextView.topAnchor.constraint(equalTo: userSiteLabel.bottomAnchor, constant: 8),
-            siteTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            siteTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16)
-        ])
+        [closeButton, profileAvatar, profileAvatarButton, loadImageButton, nameLabel, nameTextView, userInfoLabel, infoTextView, userSiteLabel, siteTextView].forEach { addSubview($0) }
     }
+    
+    private func setupConstraints() {
+            NSLayoutConstraint.activate([
+                closeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: Constants.closeButtonTrailing),
+                closeButton.topAnchor.constraint(equalTo: topAnchor, constant: Constants.closeButtonTop),
+                closeButton.heightAnchor.constraint(equalToConstant: Constants.buttonSize),
+                closeButton.widthAnchor.constraint(equalToConstant: Constants.buttonSize),
+                
+                profileAvatar.centerXAnchor.constraint(equalTo: centerXAnchor),
+                profileAvatar.topAnchor.constraint(equalTo: closeButton.bottomAnchor, constant: Constants.avatarTop),
+                profileAvatar.widthAnchor.constraint(equalToConstant: Constants.avatarSize),
+                profileAvatar.heightAnchor.constraint(equalToConstant: Constants.avatarSize),
+                
+                profileAvatarButton.centerXAnchor.constraint(equalTo: profileAvatar.centerXAnchor),
+                profileAvatarButton.centerYAnchor.constraint(equalTo: profileAvatar.centerYAnchor),
+                profileAvatarButton.widthAnchor.constraint(equalToConstant: Constants.avatarButtonSize),
+                profileAvatarButton.heightAnchor.constraint(equalToConstant: Constants.avatarButtonSize),
+                
+                loadImageButton.topAnchor.constraint(equalTo: profileAvatar.bottomAnchor, constant: Constants.loadImageButtonTop),
+                loadImageButton.centerXAnchor.constraint(equalTo: centerXAnchor),
+                
+                nameLabel.topAnchor.constraint(equalTo: profileAvatar.bottomAnchor, constant: Constants.nameLabelTop),
+                nameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.horizontalPadding),
+                nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.horizontalPadding),
+                
+                nameTextView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: Constants.textViewTop),
+                nameTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.horizontalPadding),
+                nameTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.horizontalPadding),
+                
+                userInfoLabel.topAnchor.constraint(equalTo: nameTextView.bottomAnchor, constant: Constants.userInfoLabelTop),
+                userInfoLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.horizontalPadding),
+                userInfoLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.horizontalPadding),
+                
+                infoTextView.topAnchor.constraint(equalTo: userInfoLabel.bottomAnchor, constant: Constants.textViewTop),
+                infoTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.horizontalPadding),
+                infoTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.horizontalPadding),
+                
+                userSiteLabel.topAnchor.constraint(equalTo: infoTextView.bottomAnchor, constant: Constants.userSiteLabelTop),
+                userSiteLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.horizontalPadding),
+                userSiteLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.horizontalPadding),
+                
+                siteTextView.topAnchor.constraint(equalTo: userSiteLabel.bottomAnchor, constant: Constants.textViewTop),
+                siteTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.horizontalPadding),
+                siteTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.horizontalPadding)
+            ])
+        }
     
     @objc private func closeButtonTapped() {
         closeTapped?()
@@ -197,10 +196,26 @@ final class EditProfileView: UIView {
     }
     
     @objc private func avatarImageTapped() {
-        if loadImageButton.isHidden == true {
-            loadImageButton.isHidden = false
-        } else {
-            loadImageButton.isHidden = true
-        }
+        loadImageButton.isHidden.toggle()
+    }
+}
+
+
+private extension EditProfileView {
+    enum Constants {
+        static let closeButtonTrailing: CGFloat = -16
+        static let closeButtonTop: CGFloat = 30
+        static let buttonSize: CGFloat = 44
+        
+        static let avatarTop: CGFloat = 22
+        static let avatarSize: CGFloat = 70
+        static let avatarButtonSize: CGFloat = 70
+        
+        static let loadImageButtonTop: CGFloat = 4
+        static let nameLabelTop: CGFloat = 24
+        static let textViewTop: CGFloat = 8
+        static let userInfoLabelTop: CGFloat = 24
+        static let userSiteLabelTop: CGFloat = 24
+        static let horizontalPadding: CGFloat = 16
     }
 }

@@ -65,10 +65,7 @@ final class ProfileView: UIView {
         return tableView
     }()
     
-    private lazy var profileContainerView: UIView = {
-        let view = UIView()
-        return view
-    }()
+    private lazy var profileContainerView = UIView()
     
     // MARK: - Initialization
     override init(frame: CGRect) {
@@ -76,6 +73,7 @@ final class ProfileView: UIView {
         setupLayout()
     }
     
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -97,36 +95,31 @@ final class ProfileView: UIView {
         profileTableView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            profileContainerView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 20),
-            profileContainerView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            profileContainerView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16)
-        ])
-        
-        NSLayoutConstraint.activate([
+            profileContainerView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: Constraints.containerTop),
+            profileContainerView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constraints.horizontalPadding),
+            profileContainerView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constraints.horizontalPadding),
+            
             profileAvatar.topAnchor.constraint(equalTo: profileContainerView.topAnchor),
             profileAvatar.leadingAnchor.constraint(equalTo: profileContainerView.leadingAnchor),
-            profileAvatar.widthAnchor.constraint(equalToConstant: 70),
-            profileAvatar.heightAnchor.constraint(equalToConstant: 70),
+            profileAvatar.widthAnchor.constraint(equalToConstant: Constraints.avatarSize),
+            profileAvatar.heightAnchor.constraint(equalToConstant: Constraints.avatarSize),
             
             userNameLabel.centerYAnchor.constraint(equalTo: profileAvatar.centerYAnchor),
             userNameLabel.centerXAnchor.constraint(equalTo: profileContainerView.centerXAnchor),
             
-            profileInfoLabel.topAnchor.constraint(equalTo: profileAvatar.bottomAnchor, constant: 20),
+            profileInfoLabel.topAnchor.constraint(equalTo: profileAvatar.bottomAnchor, constant: Constraints.infoTopSpacing),
             profileInfoLabel.leadingAnchor.constraint(equalTo: profileContainerView.leadingAnchor),
             profileInfoLabel.trailingAnchor.constraint(equalTo: profileContainerView.trailingAnchor),
             
-            userWebSiteLabel.topAnchor.constraint(equalTo: profileInfoLabel.bottomAnchor, constant: 12),
+            userWebSiteLabel.topAnchor.constraint(equalTo: profileInfoLabel.bottomAnchor, constant: Constraints.websiteTopSpacing),
             userWebSiteLabel.leadingAnchor.constraint(equalTo: profileContainerView.leadingAnchor),
             userWebSiteLabel.trailingAnchor.constraint(equalTo: profileContainerView.trailingAnchor),
-            userWebSiteLabel.bottomAnchor.constraint(equalTo: profileContainerView.bottomAnchor)
-        ])
-        
-        
-        NSLayoutConstraint.activate([
-            profileTableView.topAnchor.constraint(equalTo: profileContainerView.bottomAnchor, constant: 40),
+            userWebSiteLabel.bottomAnchor.constraint(equalTo: profileContainerView.bottomAnchor),
+            
+            profileTableView.topAnchor.constraint(equalTo: profileContainerView.bottomAnchor, constant: Constraints.tableTopSpacing),
             profileTableView.leadingAnchor.constraint(equalTo: leadingAnchor),
             profileTableView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            profileTableView.heightAnchor.constraint(equalToConstant: 54 * 3)
+            profileTableView.heightAnchor.constraint(equalToConstant: Constraints.tableHeight)
         ])
     }
     
@@ -201,5 +194,17 @@ extension ProfileView: UITableViewDelegate, UITableViewDataSource {
         tableView.deselectRow(at: indexPath, animated: true)
         
         print("Ячейка выбрана")
+    }
+}
+
+private extension ProfileView {
+    enum Constraints {
+        static let containerTop: CGFloat = 20
+        static let horizontalPadding: CGFloat = 16
+        static let avatarSize: CGFloat = 70
+        static let infoTopSpacing: CGFloat = 20
+        static let websiteTopSpacing: CGFloat = 12
+        static let tableTopSpacing: CGFloat = 40
+        static let tableHeight: CGFloat = 54 * 3
     }
 }

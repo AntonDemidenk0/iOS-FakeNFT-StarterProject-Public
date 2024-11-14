@@ -16,3 +16,6 @@
 "LoadImage" = "Загрузить изображение";
 "EnterImageURL" = "Введите ссылку";
 "PleaseEnterURLForAvatar" = "Введите ссылку на изображение";
+"FailedToLoadProfile" = "Не удалось загрузить профиль";
+"Cancel" = "Отмена";
+"TryAgain" = "Попробовать снова";

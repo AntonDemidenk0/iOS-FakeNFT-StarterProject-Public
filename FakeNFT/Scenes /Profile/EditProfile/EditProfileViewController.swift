@@ -16,7 +16,7 @@ final class EditProfileViewController: UIViewController {
     
     // MARK: - Properties
     weak var delegate: EditProfileDelegate?
-    private let editProfileView = EditProfileView()
+    private lazy var editProfileView = EditProfileView()
     private var profile: Profile
     private var updatedAvatarURL: String?
     
@@ -27,6 +27,7 @@ final class EditProfileViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

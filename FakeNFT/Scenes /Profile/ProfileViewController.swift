@@ -42,6 +42,7 @@ final class ProfileViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -54,7 +55,6 @@ final class ProfileViewController: UIViewController {
             self?.didTapOnWebsiteLabel(with: address)
         }
         setupNavigationBar()
-        ProgressHUD.show()
         loadProfile()
     }
     
@@ -75,6 +75,7 @@ final class ProfileViewController: UIViewController {
     // MARK: - Private Methods
     
     private func loadProfile() {
+        ProgressHUD.show()
         servicesAssembly.profileService.loadProfile { [weak self] result in
             DispatchQueue.main.async {
                 ProgressHUD.dismiss()
@@ -83,10 +84,36 @@ final class ProfileViewController: UIViewController {
                     self?.profile = loadedProfile
                     self?.profileView.updateUI(with: loadedProfile)
                 case .failure(let error):
-                    print("error \(error)")
+                    self?.showErrorAlert(with: error)
                 }
             }
         }
+    }
+    
+    private func showErrorAlert(with error: Error) {
+        let alert = UIAlertController(
+            title: NSLocalizedString("Error.title", comment: ""),
+            message: NSLocalizedString("FailedToLoadProfile", comment: ""),
+            preferredStyle: .alert
+        )
+
+        let retryAction = UIAlertAction(
+            title: NSLocalizedString("TryAgain", comment: ""),
+            style: .default
+        ) { [weak self] _ in
+            self?.loadProfile()
+        }
+
+        let cancelAction = UIAlertAction(
+            title: NSLocalizedString("Cancel", comment: ""),
+            style: .cancel,
+            handler: nil
+        )
+
+        alert.addAction(retryAction)
+        alert.addAction(cancelAction)
+
+        present(alert, animated: true, completion: nil)
     }
     
     // MARK: - Actions
