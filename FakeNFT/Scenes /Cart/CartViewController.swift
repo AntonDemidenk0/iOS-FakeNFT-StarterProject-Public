@@ -244,6 +244,25 @@ final class CartViewController: UIViewController, LoadingView, ErrorView {
     
     @objc private func goToPayment() {
         print("💳 Переход на экран оплаты")
+        
+        let networkClient = DefaultNetworkClient()
+        let paymentService = PaymentServiceImpl(networkClient: networkClient)
+        
+        let paymentViewController = PaymentViewController(
+            paymentService: paymentService,
+            orderId: orderId,
+            onSuccessPayment: { [weak self] in
+                self?.navigateToCatalog()
+            }
+        )
+        
+        paymentViewController.modalPresentationStyle = .fullScreen
+        present(paymentViewController, animated: true)
+    }
+
+    private func navigateToCatalog() {
+        guard let tabBarController = self.tabBarController else { return }
+        tabBarController.selectedIndex = 0 // Переход на вкладку каталога
     }
 
     private func loadCartItems() {
