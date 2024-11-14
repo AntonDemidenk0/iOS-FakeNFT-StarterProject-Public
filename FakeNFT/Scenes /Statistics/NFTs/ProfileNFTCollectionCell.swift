@@ -15,7 +15,7 @@ final class ProfileNFTCollectionCell: UICollectionViewCell {
     }()
     
     private let nameLabel = ProfileNFTCollectionCell.createLabel(fontSize: 17, weight: .bold)
-    private let priceLabel = ProfileNFTCollectionCell.createLabel(fontSize: 10, weight: .medium)
+    private let priceLabel = ProfileNFTCollectionCell.createLabel(fontSize: 10, weight: .light)
     
     private let ratingStarsView: RatingStarsView = {
         let view = RatingStarsView()

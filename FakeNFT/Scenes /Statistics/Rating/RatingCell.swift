@@ -66,7 +66,8 @@ final class RatingCell: UICollectionViewCell {
     private func setupConstraints() {
         NSLayoutConstraint.activate([
             ratingLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            ratingLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            ratingLabel.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            ratingLabel.heightAnchor.constraint(equalToConstant: 20),
             ratingLabel.widthAnchor.constraint(equalToConstant: 27),
             
             cellView.topAnchor.constraint(equalTo: contentView.topAnchor),

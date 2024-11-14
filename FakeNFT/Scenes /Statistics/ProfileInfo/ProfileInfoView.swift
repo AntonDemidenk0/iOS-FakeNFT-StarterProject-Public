@@ -32,7 +32,7 @@ final class ProfileInfoView: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.font = .systemFont(ofSize: 13, weight: .light)
         return label
     }()
     
@@ -44,6 +44,7 @@ final class ProfileInfoView: UIViewController {
         button.layer.borderColor = UIColor.black.cgColor
         button.setTitle("Перейти на сайт пользователя", for: .normal)
         button.setTitleColor(.black, for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .light)
         button.addTarget(self, action: #selector(webButtonTapped), for: .touchUpInside)
         return button
     }()
@@ -55,6 +56,9 @@ final class ProfileInfoView: UIViewController {
         tableView.delegate = self
         tableView.register(NFTsTableViewCell.self, forCellReuseIdentifier: "NFTsTableViewCell")
         tableView.separatorStyle = .none
+        tableView.isScrollEnabled = false
+        tableView.showsVerticalScrollIndicator = false
+        tableView.showsHorizontalScrollIndicator = false
         return tableView
     }()
     
