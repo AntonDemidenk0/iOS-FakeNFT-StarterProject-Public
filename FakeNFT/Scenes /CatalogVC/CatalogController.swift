@@ -242,6 +242,12 @@ extension CatalogViewController: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selectedCollection = filteredCollections[indexPath.row]
+        let nftCollectionVC = NFTCollectionViewController(collection: selectedCollection)
+        navigationController?.pushViewController(nftCollectionVC, animated: true)
+    }
+    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 179
     }

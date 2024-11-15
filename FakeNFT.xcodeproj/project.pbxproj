@@ -26,6 +26,7 @@
 		1ACD59FD2CE0B64100DA04DC /* NFTCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACD59FC2CE0B63400DA04DC /* NFTCollection.swift */; };
 		1ACD5A002CE1320100DA04DC /* SortOptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACD59FF2CE131FC00DA04DC /* SortOptionManager.swift */; };
 		1ACD5A052CE3B3B300DA04DC /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACD5A042CE3B3AE00DA04DC /* ImageLoader.swift */; };
+		1ACD5A072CE73F2400DA04DC /* NFTCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACD5A062CE73F2200DA04DC /* NFTCollectionViewController.swift */; };
 		1AEC61C42CDFBDD3002B838D /* CatalogTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AEC61C32CDFBDC2002B838D /* CatalogTableViewCell.swift */; };
 		3F478ECF29DB474E00F6D39E /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F478ECE29DB474E00F6D39E /* Colors.swift */; };
 		3F478ED129DB476500F6D39E /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F478ED029DB476500F6D39E /* Fonts.swift */; };
@@ -89,6 +90,7 @@
 		1ACD59FC2CE0B63400DA04DC /* NFTCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTCollection.swift; sourceTree = "<group>"; };
 		1ACD59FF2CE131FC00DA04DC /* SortOptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortOptionManager.swift; sourceTree = "<group>"; };
 		1ACD5A042CE3B3AE00DA04DC /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
+		1ACD5A062CE73F2200DA04DC /* NFTCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTCollectionViewController.swift; sourceTree = "<group>"; };
 		1AEC61C32CDFBDC2002B838D /* CatalogTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogTableViewCell.swift; sourceTree = "<group>"; };
 		3F478ECE29DB474E00F6D39E /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		3F478ED029DB476500F6D39E /* Fonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
@@ -184,14 +186,14 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		0CFCB7472A7808870009A829 /* Catalog */ = {
+		0CFCB7472A7808870009A829 /* CatalogVC */ = {
 			isa = PBXGroup;
 			children = (
 				0CFCB7482A7808900009A829 /* CatalogController.swift */,
 				1ACD59FE2CE131DF00DA04DC /* SortOption */,
 				1AEC61C22CDFBDAB002B838D /* CellHelpers */,
 			);
-			path = Catalog;
+			path = CatalogVC;
 			sourceTree = "<group>";
 		};
 		0CFCB74C2A7817C30009A829 /* MemoryStorage */ = {
@@ -216,6 +218,14 @@
 				1ACD5A042CE3B3AE00DA04DC /* ImageLoader.swift */,
 			);
 			path = ImageLoader;
+			sourceTree = "<group>";
+		};
+		1ACD5A082CE73F2D00DA04DC /* NFTCollectionVC */ = {
+			isa = PBXGroup;
+			children = (
+				1ACD5A062CE73F2200DA04DC /* NFTCollectionViewController.swift */,
+			);
+			path = NFTCollectionVC;
 			sourceTree = "<group>";
 		};
 		1AEC61C22CDFBDAB002B838D /* CellHelpers */ = {
@@ -304,7 +314,8 @@
 			children = (
 				E1A1B9D82AA01C9700C3AFBC /* TabBarController */,
 				0CF2C2D92A783C1600FDC837 /* Common */,
-				0CFCB7472A7808870009A829 /* Catalog */,
+				0CFCB7472A7808870009A829 /* CatalogVC */,
+				1ACD5A082CE73F2D00DA04DC /* NFTCollectionVC */,
 				0C79EE642A76DDCF00EE90EA /* NftDetails */,
 				3F6806C829CBBC8100B4F915 /* ProductDetails */,
 			);
@@ -559,6 +570,7 @@
 				3F68069729CBBAF100B4F915 /* AppDelegate.swift in Sources */,
 				3F68069929CBBAF100B4F915 /* SceneDelegate.swift in Sources */,
 				0C79EE6C2A76DE2E00EE90EA /* ServicesAssemly.swift in Sources */,
+				1ACD5A072CE73F2400DA04DC /* NFTCollectionViewController.swift in Sources */,
 				0CFCB74E2A7817DC0009A829 /* NftStorage.swift in Sources */,
 				1AEC61C42CDFBDD3002B838D /* CatalogTableViewCell.swift in Sources */,
 				3FC8C39129D2453B0081F015 /* ExamplePutRequest.swift in Sources */,
