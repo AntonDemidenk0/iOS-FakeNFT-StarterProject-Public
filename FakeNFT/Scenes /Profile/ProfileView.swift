@@ -9,6 +9,7 @@ import UIKit
 final class ProfileView: UIView {
     
     var websiteLabelTapped: ((String) -> Void)?
+    var myNFTTapped: (() -> Void)?
     private var nftsCount: Int = 0
     private var likesCount: Int = 0
     
@@ -192,7 +193,9 @@ extension ProfileView: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        
+        if let myNFTTapped = myNFTTapped {
+            myNFTTapped()
+            }
         print("Ячейка выбрана")
     }
 }

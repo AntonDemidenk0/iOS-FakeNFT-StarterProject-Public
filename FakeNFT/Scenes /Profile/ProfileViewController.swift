@@ -17,6 +17,8 @@ final class ProfileViewController: UIViewController {
     private let servicesAssembly: ServicesAssembly
     private let profileView = ProfileView()
     private var profile: Profile?
+    private var myNFTs: [String]?
+    private let myNFTViewController = MyNFTViewController()
     
     // MARK: - UI Elements
     private lazy var editProfileButton: UIButton = {
@@ -54,6 +56,15 @@ final class ProfileViewController: UIViewController {
         profileView.websiteLabelTapped = { [weak self] address in
             self?.didTapOnWebsiteLabel(with: address)
         }
+        profileView.myNFTTapped = { [weak self] in
+            guard let self = self else { return }
+            guard let nftIds = self.myNFTs else {
+                self.showErrorAlert(with: NSError(domain: "com.app.error", code: 404, userInfo: [NSLocalizedDescriptionKey: "No NFTs available."]))
+                return
+            }
+            self.loadNFTs(with: nftIds)
+        }
+        
         setupNavigationBar()
         loadProfile()
     }
@@ -83,6 +94,7 @@ final class ProfileViewController: UIViewController {
                 case .success(let loadedProfile):
                     self?.profile = loadedProfile
                     self?.profileView.updateUI(with: loadedProfile)
+                    self?.myNFTs = loadedProfile.nfts
                 case .failure(let error):
                     self?.showErrorAlert(with: error)
                 }
@@ -96,24 +108,52 @@ final class ProfileViewController: UIViewController {
             message: NSLocalizedString("FailedToLoadProfile", comment: ""),
             preferredStyle: .alert
         )
-
+        
         let retryAction = UIAlertAction(
             title: NSLocalizedString("TryAgain", comment: ""),
             style: .default
         ) { [weak self] _ in
             self?.loadProfile()
         }
-
+        
         let cancelAction = UIAlertAction(
             title: NSLocalizedString("Cancel", comment: ""),
             style: .cancel,
             handler: nil
         )
-
+        
         alert.addAction(retryAction)
         alert.addAction(cancelAction)
-
+        
         present(alert, animated: true, completion: nil)
+    }
+    
+    private func loadNFTs(with ids: [String]) {
+        var loadedNFTs: [MyNFT] = []
+        let dispatchGroup = DispatchGroup()
+        
+        for id in ids {
+            dispatchGroup.enter()
+            
+            servicesAssembly.myNftService.loadNft(id: id) { result in
+                switch result {
+                case .success(let nft):
+                    loadedNFTs.append(nft)
+                case .failure(let error):
+                    self.showErrorAlert(with: error)
+                }
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            if let navigationController = self.navigationController {
+                let myNFTViewController = MyNFTViewController()
+                myNFTViewController.nfts = loadedNFTs
+                myNFTViewController.hidesBottomBarWhenPushed = true
+                navigationController.pushViewController(myNFTViewController, animated: true)
+            }
+        }
     }
     
     // MARK: - Actions
@@ -153,14 +193,14 @@ final class ProfileViewController: UIViewController {
             webView.trailingAnchor.constraint(equalTo: webViewController.view.trailingAnchor)
         ])
         
-        webViewController.modalPresentationStyle = .pageSheet
-        present(webViewController, animated: true, completion: nil)
+        navigationController?.pushViewController(webViewController, animated: true)
     }
 }
 
 // MARK: - EditProfileDelegate
+
 extension ProfileViewController: EditProfileDelegate {
-        
+    
     func didUpdateProfile(_ profile: Profile) {
         self.profile = profile
         profileView.updateUI(with: profile)
@@ -169,7 +209,7 @@ extension ProfileViewController: EditProfileDelegate {
         let description = profile.description ?? ""
         let website = profile.website ?? ""
         let avatar = profile.avatar ?? ""
-    
+        
         
         servicesAssembly.profileService.updateProfile(
             name: name,

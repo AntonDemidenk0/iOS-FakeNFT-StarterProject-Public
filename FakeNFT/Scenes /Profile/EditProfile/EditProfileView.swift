@@ -119,6 +119,7 @@ final class EditProfileView: UIView {
         super.init(frame: frame)
         setupViews()
         setupConstraints()
+        setupKeyboardHandling()
     }
     
     @available(*, unavailable)
@@ -142,50 +143,81 @@ final class EditProfileView: UIView {
     }
     
     private func setupConstraints() {
-            NSLayoutConstraint.activate([
-                closeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: Constants.closeButtonTrailing),
-                closeButton.topAnchor.constraint(equalTo: topAnchor, constant: Constants.closeButtonTop),
-                closeButton.heightAnchor.constraint(equalToConstant: Constants.buttonSize),
-                closeButton.widthAnchor.constraint(equalToConstant: Constants.buttonSize),
-                
-                profileAvatar.centerXAnchor.constraint(equalTo: centerXAnchor),
-                profileAvatar.topAnchor.constraint(equalTo: closeButton.bottomAnchor, constant: Constants.avatarTop),
-                profileAvatar.widthAnchor.constraint(equalToConstant: Constants.avatarSize),
-                profileAvatar.heightAnchor.constraint(equalToConstant: Constants.avatarSize),
-                
-                profileAvatarButton.centerXAnchor.constraint(equalTo: profileAvatar.centerXAnchor),
-                profileAvatarButton.centerYAnchor.constraint(equalTo: profileAvatar.centerYAnchor),
-                profileAvatarButton.widthAnchor.constraint(equalToConstant: Constants.avatarButtonSize),
-                profileAvatarButton.heightAnchor.constraint(equalToConstant: Constants.avatarButtonSize),
-                
-                loadImageButton.topAnchor.constraint(equalTo: profileAvatar.bottomAnchor, constant: Constants.loadImageButtonTop),
-                loadImageButton.centerXAnchor.constraint(equalTo: centerXAnchor),
-                
-                nameLabel.topAnchor.constraint(equalTo: profileAvatar.bottomAnchor, constant: Constants.nameLabelTop),
-                nameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.horizontalPadding),
-                nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.horizontalPadding),
-                
-                nameTextView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: Constants.textViewTop),
-                nameTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.horizontalPadding),
-                nameTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.horizontalPadding),
-                
-                userInfoLabel.topAnchor.constraint(equalTo: nameTextView.bottomAnchor, constant: Constants.userInfoLabelTop),
-                userInfoLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.horizontalPadding),
-                userInfoLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.horizontalPadding),
-                
-                infoTextView.topAnchor.constraint(equalTo: userInfoLabel.bottomAnchor, constant: Constants.textViewTop),
-                infoTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.horizontalPadding),
-                infoTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.horizontalPadding),
-                
-                userSiteLabel.topAnchor.constraint(equalTo: infoTextView.bottomAnchor, constant: Constants.userSiteLabelTop),
-                userSiteLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.horizontalPadding),
-                userSiteLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.horizontalPadding),
-                
-                siteTextView.topAnchor.constraint(equalTo: userSiteLabel.bottomAnchor, constant: Constants.textViewTop),
-                siteTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.horizontalPadding),
-                siteTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.horizontalPadding)
-            ])
-        }
+        NSLayoutConstraint.activate([
+            closeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: Constants.closeButtonTrailing),
+            closeButton.topAnchor.constraint(equalTo: topAnchor, constant: Constants.closeButtonTop),
+            closeButton.heightAnchor.constraint(equalToConstant: Constants.buttonSize),
+            closeButton.widthAnchor.constraint(equalToConstant: Constants.buttonSize),
+            
+            profileAvatar.centerXAnchor.constraint(equalTo: centerXAnchor),
+            profileAvatar.topAnchor.constraint(equalTo: closeButton.bottomAnchor, constant: Constants.avatarTop),
+            profileAvatar.widthAnchor.constraint(equalToConstant: Constants.avatarSize),
+            profileAvatar.heightAnchor.constraint(equalToConstant: Constants.avatarSize),
+            
+            profileAvatarButton.centerXAnchor.constraint(equalTo: profileAvatar.centerXAnchor),
+            profileAvatarButton.centerYAnchor.constraint(equalTo: profileAvatar.centerYAnchor),
+            profileAvatarButton.widthAnchor.constraint(equalToConstant: Constants.avatarButtonSize),
+            profileAvatarButton.heightAnchor.constraint(equalToConstant: Constants.avatarButtonSize),
+            
+            loadImageButton.topAnchor.constraint(equalTo: profileAvatar.bottomAnchor, constant: Constants.loadImageButtonTop),
+            loadImageButton.centerXAnchor.constraint(equalTo: centerXAnchor),
+            
+            nameLabel.topAnchor.constraint(equalTo: profileAvatar.bottomAnchor, constant: Constants.nameLabelTop),
+            nameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.horizontalPadding),
+            nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.horizontalPadding),
+            
+            nameTextView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: Constants.textViewTop),
+            nameTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.horizontalPadding),
+            nameTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.horizontalPadding),
+            
+            userInfoLabel.topAnchor.constraint(equalTo: nameTextView.bottomAnchor, constant: Constants.userInfoLabelTop),
+            userInfoLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.horizontalPadding),
+            userInfoLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.horizontalPadding),
+            
+            infoTextView.topAnchor.constraint(equalTo: userInfoLabel.bottomAnchor, constant: Constants.textViewTop),
+            infoTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.horizontalPadding),
+            infoTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.horizontalPadding),
+            
+            userSiteLabel.topAnchor.constraint(equalTo: infoTextView.bottomAnchor, constant: Constants.userSiteLabelTop),
+            userSiteLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.horizontalPadding),
+            userSiteLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.horizontalPadding),
+            
+            siteTextView.topAnchor.constraint(equalTo: userSiteLabel.bottomAnchor, constant: Constants.textViewTop),
+            siteTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Constants.horizontalPadding),
+            siteTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Constants.horizontalPadding)
+        ])
+    }
+    
+    private func setupKeyboardHandling() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
+        addGestureRecognizer(tapGesture)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    private func textViewShouldReturn(_ textView: UITextView) -> Bool {
+        textView.resignFirstResponder()
+        return true
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    
+    @objc private func hideKeyboard() {
+        endEditing(true)
+    }
+    
+    @objc private func keyboardWillShow(notification: Notification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+        self.frame.origin.y = -keyboardFrame.height / 2
+    }
+    
+    @objc private func keyboardWillHide(notification: Notification) {
+        self.frame.origin.y = 0
+    }
     
     @objc private func closeButtonTapped() {
         closeTapped?()
