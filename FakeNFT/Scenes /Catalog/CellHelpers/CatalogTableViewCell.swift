@@ -80,12 +80,15 @@ final class CatalogTableViewCell: UITableViewCell {
         activityIndicator.startAnimating()
     }
     
-    func updateImage(_ image: UIImage?) {
-        if let image = image {
-            collectionImageView.image = image
+    func updateImage(_ result: Result<UIImage, Error>) {
+        switch result {
+        case .success(let image):
             activityIndicator.stopAnimating()
-        } else {
-            activityIndicator.startAnimating()
+            collectionImageView.image = image
+        case .failure(let error):
+            activityIndicator.stopAnimating()
+            print("Image loading failed: \(error.localizedDescription)")
         }
     }
+
 }
