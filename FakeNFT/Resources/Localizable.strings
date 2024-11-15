@@ -4,3 +4,20 @@
 "Error.unknown" = "Произошла неизвестная ошибка";
 "Error.repeat" = "Повторить";
 "Error.title" = "Ошибка";
+
+"Sort.title" = "Сортировка";
+"Sort.byName" = "По названию";
+"Sort.byCount" = "По количеству NFT";
+"Sort.close" = "Закрыть";
+
+
+"Network Error" = "Сетевая ошибка";
+"Unable to fetch collections. Please check your internet connection and try again." = "Не удалось загрузить коллекции. Проверьте подключение к интернету и попробуйте снова.";
+"Retry" = "Повторить";
+"Cancel" = "Отмена";
+"Error" = "Ошибка";
+"Failed to load some images. Would you like to try again?" = "Не удалось загрузить некоторые изображения. Хотите попробовать снова?";
+"Sort.title" = "Сортировать";
+"Sort.byName" = "По названию";
+"Sort.byCount" = "По количеству";
+"Sort.close" = "Закрыть";
