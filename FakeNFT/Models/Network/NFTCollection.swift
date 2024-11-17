@@ -14,5 +14,13 @@ struct NFTCollection: Decodable, Equatable {
     let nfts: [String]
     let description: String
     let author: String
-}
 
+    static func == (lhs: NFTCollection, rhs: NFTCollection) -> Bool {
+        return lhs.id == rhs.id &&
+               lhs.name == rhs.name &&
+               lhs.cover == rhs.cover &&
+               lhs.nfts == rhs.nfts &&
+               lhs.description == rhs.description &&
+               lhs.author == rhs.author
+    }
+}

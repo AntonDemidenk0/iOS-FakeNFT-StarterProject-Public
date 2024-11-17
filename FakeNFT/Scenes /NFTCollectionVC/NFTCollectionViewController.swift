@@ -7,10 +7,14 @@
 
 import UIKit
 
-final class NFTCollectionViewController: UICollectionViewController {
+final class NFTCollectionViewController: UIViewController {
     
     // MARK: - Properties
+    
     private let collection: NFTCollection
+    private let servicesAssembly: ServicesAssembly
+    private var nfts: [Nft] = []
+    private var images: [String: UIImage] = [:]
     
     private lazy var coverImageView: UIImageView = {
         let imageView = UIImageView()
@@ -64,11 +68,29 @@ final class NFTCollectionViewController: UICollectionViewController {
         return stackView
     }()
     
-    // MARK: - Initialization
-    init(collection: NFTCollection) {
-        self.collection = collection
+    private lazy var nftCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        super.init(collectionViewLayout: layout)
+        layout.itemSize = CGSize(width: 108, height: 192)
+        layout.minimumLineSpacing = 16
+        layout.minimumInteritemSpacing = 16
+        layout.sectionInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+        
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.register(NFTCollectionViewCell.self, forCellWithReuseIdentifier: NFTCollectionViewCell.identifier)
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.backgroundColor = .clear
+        return collectionView
+    }()
+    
+    
+    // MARK: - Initialization
+    
+    init(collection: NFTCollection, servicesAssembly: ServicesAssembly) {
+        self.collection = collection
+        self.servicesAssembly = servicesAssembly
+        super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
@@ -78,9 +100,11 @@ final class NFTCollectionViewController: UICollectionViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        initializePlaceholderNFTs()
         setupUI()
         configureView()
         configureCover()
+        fetchNFTs()
     }
     
     // MARK: - Setup Methods
@@ -97,6 +121,7 @@ final class NFTCollectionViewController: UICollectionViewController {
         
         view.addSubview(titleLabel)
         NSLayoutConstraint.activate([
+            
             titleLabel.topAnchor.constraint(equalTo: coverImageView.bottomAnchor, constant: 8),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
@@ -109,7 +134,23 @@ final class NFTCollectionViewController: UICollectionViewController {
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
         ])
+        
+        view.addSubview(nftCollectionView)
+        NSLayoutConstraint.activate([
+            nftCollectionView.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 16),
+            nftCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            nftCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            nftCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
     }
+    
+    private func initializePlaceholderNFTs() {
+        nfts = collection.nfts.map { nftID in
+            Nft(id: nftID, name: "Loading...", images: [], rating: 0, description: "", price: 0, author: "")
+        }
+    }
+
+
     
     private func configureView() {
         titleLabel.text = collection.name.capitalized
@@ -133,7 +174,7 @@ final class NFTCollectionViewController: UICollectionViewController {
         
         descriptionLabel.text = collection.description
     }
-
+    
     private func configureCover() {
         ImageLoader.shared.loadImage(from: collection.cover) { [weak self] result in
             DispatchQueue.main.async {
@@ -145,5 +186,63 @@ final class NFTCollectionViewController: UICollectionViewController {
                 }
             }
         }
+    }
+    
+    private func fetchNFTs() {
+        servicesAssembly.nftService.fetchNFTs(nftIDs: collection.nfts) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let nfts):
+                    self?.nfts = nfts
+                    self?.loadImages(for: nfts)
+                    self?.nftCollectionView.reloadData()
+                case .failure(let error):
+                    print("Failed to load NFTs: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    private func loadImages(for nfts: [Nft]) {
+        for (index, nft) in nfts.enumerated() {
+            guard let imageUrl = nft.imageUrls.first?.absoluteString else { continue }
+            
+            ImageLoader.shared.loadImage(from: imageUrl) { [weak self] result in
+                DispatchQueue.main.async {
+                    guard let self = self else { return }
+                    switch result {
+                    case .success(let image):
+                        self.images[nft.id] = image
+                    case .failure:
+                        self.images[nft.id] = UIImage(named: "placeholder")
+                    }
+                    if let cell = self.nftCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? NFTCollectionViewCell {
+                        cell.configure(with: nft, image: self.images[nft.id])
+                    }
+                }
+            }
+        }
+    }
+}
+
+extension NFTCollectionViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        print("Number of items in section: \(nfts.count)")
+        return nfts.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: NFTCollectionViewCell.identifier,
+            for: indexPath
+        ) as? NFTCollectionViewCell else {
+            fatalError("Could not dequeue NFTCollectionViewCell")
+        }
+        
+        let nft = nfts[indexPath.item]
+        let image = images[nft.id]
+        cell.configure(with: nft, image: image)
+        return cell
     }
 }

@@ -62,11 +62,10 @@ final class CatalogViewController: UIViewController {
         sortButton.setImage(UIImage(named: "sort"), for: .normal)
         sortButton.tintColor = .label
         sortButton.addTarget(self, action: #selector(sortButtonTapped), for: .touchUpInside)
-        
         sortButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            sortButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 14),
-            sortButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            sortButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -30),
+            sortButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -25),
             sortButton.widthAnchor.constraint(equalToConstant: 29),
             sortButton.heightAnchor.constraint(equalToConstant: 20)
         ])
@@ -244,9 +243,13 @@ extension CatalogViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedCollection = filteredCollections[indexPath.row]
-        let nftCollectionVC = NFTCollectionViewController(collection: selectedCollection)
+        let nftCollectionVC = NFTCollectionViewController(
+            collection: selectedCollection,
+            servicesAssembly: servicesAssembly
+        )
         navigationController?.pushViewController(nftCollectionVC, animated: true)
     }
+
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 179
