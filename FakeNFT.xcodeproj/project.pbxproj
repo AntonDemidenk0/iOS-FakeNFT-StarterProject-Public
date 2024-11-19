@@ -23,11 +23,14 @@
 		0CFCB7492A7808900009A829 /* CatalogController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CFCB7482A7808900009A829 /* CatalogController.swift */; };
 		0CFCB74B2A780EA80009A829 /* UIView+Constraints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CFCB74A2A780EA80009A829 /* UIView+Constraints.swift */; };
 		0CFCB74E2A7817DC0009A829 /* NftStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CFCB74D2A7817DC0009A829 /* NftStorage.swift */; };
-		1ACD59FD2CE0B64100DA04DC /* NFTCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACD59FC2CE0B63400DA04DC /* NFTCollection.swift */; };
+		1ACD59FD2CE0B64100DA04DC /* NFTCollectionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACD59FC2CE0B63400DA04DC /* NFTCollectionModel.swift */; };
 		1ACD5A002CE1320100DA04DC /* SortOptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACD59FF2CE131FC00DA04DC /* SortOptionManager.swift */; };
 		1ACD5A052CE3B3B300DA04DC /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACD5A042CE3B3AE00DA04DC /* ImageLoader.swift */; };
 		1ACD5A072CE73F2400DA04DC /* NFTCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACD5A062CE73F2200DA04DC /* NFTCollectionViewController.swift */; };
 		1ACD5A122CE7889000DA04DC /* NFTCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACD5A112CE7888D00DA04DC /* NFTCollectionViewCell.swift */; };
+		1ACD5A152CEBB31900DA04DC /* AuthorWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACD5A142CEBB31400DA04DC /* AuthorWebViewController.swift */; };
+		1ACD5A192CEBB67700DA04DC /* ProfileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACD5A182CEBB67500DA04DC /* ProfileService.swift */; };
+		1ACD5A1B2CEBC72600DA04DC /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACD5A1A2CEBC71A00DA04DC /* UserModel.swift */; };
 		1AEC61C42CDFBDD3002B838D /* CatalogTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AEC61C32CDFBDC2002B838D /* CatalogTableViewCell.swift */; };
 		3F478ECF29DB474E00F6D39E /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F478ECE29DB474E00F6D39E /* Colors.swift */; };
 		3F478ED129DB476500F6D39E /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F478ED029DB476500F6D39E /* Fonts.swift */; };
@@ -88,11 +91,14 @@
 		0CFCB7482A7808900009A829 /* CatalogController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogController.swift; sourceTree = "<group>"; };
 		0CFCB74A2A780EA80009A829 /* UIView+Constraints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Constraints.swift"; sourceTree = "<group>"; };
 		0CFCB74D2A7817DC0009A829 /* NftStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftStorage.swift; sourceTree = "<group>"; };
-		1ACD59FC2CE0B63400DA04DC /* NFTCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTCollection.swift; sourceTree = "<group>"; };
+		1ACD59FC2CE0B63400DA04DC /* NFTCollectionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTCollectionModel.swift; sourceTree = "<group>"; };
 		1ACD59FF2CE131FC00DA04DC /* SortOptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortOptionManager.swift; sourceTree = "<group>"; };
 		1ACD5A042CE3B3AE00DA04DC /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
 		1ACD5A062CE73F2200DA04DC /* NFTCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTCollectionViewController.swift; sourceTree = "<group>"; };
 		1ACD5A112CE7888D00DA04DC /* NFTCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTCollectionViewCell.swift; sourceTree = "<group>"; };
+		1ACD5A142CEBB31400DA04DC /* AuthorWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorWebViewController.swift; sourceTree = "<group>"; };
+		1ACD5A182CEBB67500DA04DC /* ProfileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileService.swift; sourceTree = "<group>"; };
+		1ACD5A1A2CEBC71A00DA04DC /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
 		1AEC61C32CDFBDC2002B838D /* CatalogTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogTableViewCell.swift; sourceTree = "<group>"; };
 		3F478ECE29DB474E00F6D39E /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		3F478ED029DB476500F6D39E /* Fonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
@@ -227,6 +233,7 @@
 			children = (
 				1ACD5A062CE73F2200DA04DC /* NFTCollectionViewController.swift */,
 				1ACD5A102CE7886B00DA04DC /* NFTCollectionCellHelpers */,
+				1ACD5A132CEBB2F700DA04DC /* AuthorWebView */,
 			);
 			path = NFTCollectionVC;
 			sourceTree = "<group>";
@@ -237,6 +244,14 @@
 				1ACD5A112CE7888D00DA04DC /* NFTCollectionViewCell.swift */,
 			);
 			path = NFTCollectionCellHelpers;
+			sourceTree = "<group>";
+		};
+		1ACD5A132CEBB2F700DA04DC /* AuthorWebView */ = {
+			isa = PBXGroup;
+			children = (
+				1ACD5A142CEBB31400DA04DC /* AuthorWebViewController.swift */,
+			);
+			path = AuthorWebView;
 			sourceTree = "<group>";
 		};
 		1AEC61C22CDFBDAB002B838D /* CellHelpers */ = {
@@ -314,6 +329,7 @@
 				1ACD5A012CE220EB00DA04DC /* ImageLoader */,
 				3FC8C38F29D245250081F015 /* Requests */,
 				0C79EE6B2A76DE2E00EE90EA /* ServicesAssemly.swift */,
+				1ACD5A182CEBB67500DA04DC /* ProfileService.swift */,
 				558E39E62C68CE0900FB86AC /* NftService.swift */,
 				0CFCB73F2A78002A0009A829 /* ExamplePutService.swift */,
 			);
@@ -375,7 +391,8 @@
 		3F6806D829CC979D00B4F915 /* Network */ = {
 			isa = PBXGroup;
 			children = (
-				1ACD59FC2CE0B63400DA04DC /* NFTCollection.swift */,
+				1ACD5A1A2CEBC71A00DA04DC /* UserModel.swift */,
+				1ACD59FC2CE0B63400DA04DC /* NFTCollectionModel.swift */,
 				0CFCB7412A78013E0009A829 /* Nft.swift */,
 			);
 			path = Network;
@@ -564,7 +581,8 @@
 				3F478ECF29DB474E00F6D39E /* Colors.swift in Sources */,
 				0C79EE662A76DDFF00EE90EA /* NftDetailViewController.swift in Sources */,
 				E1A1B9DA2AA01CE400C3AFBC /* TabBarController.swift in Sources */,
-				1ACD59FD2CE0B64100DA04DC /* NFTCollection.swift in Sources */,
+				1ACD59FD2CE0B64100DA04DC /* NFTCollectionModel.swift in Sources */,
+				1ACD5A192CEBB67700DA04DC /* ProfileService.swift in Sources */,
 				3F478ED129DB476500F6D39E /* Fonts.swift in Sources */,
 				0C79EE6A2A76DE1000EE90EA /* NftDetailAssembly.swift in Sources */,
 				3FC8C39329D246BA0081F015 /* DateFormatters+Presets.swift in Sources */,
@@ -574,6 +592,7 @@
 				0C79EE682A76DE0900EE90EA /* NftDetailPresenter.swift in Sources */,
 				3F68069B29CBBAF100B4F915 /* ProductDetailsTableViewController.swift in Sources */,
 				1ACD5A052CE3B3B300DA04DC /* ImageLoader.swift in Sources */,
+				1ACD5A1B2CEBC72600DA04DC /* UserModel.swift in Sources */,
 				0CFCB7402A78002A0009A829 /* ExamplePutService.swift in Sources */,
 				3F6806D529CBBEC700B4F915 /* NetworkTask.swift in Sources */,
 				0CF2C2DB2A783C1B00FDC837 /* LoadingView.swift in Sources */,
@@ -592,6 +611,7 @@
 				0C79EE612A76DCD600EE90EA /* NftByIdRequest.swift in Sources */,
 				E19CD5AB2A98B56600CA39A5 /* NftImageCollectionViewCell.swift in Sources */,
 				0CF2C2E12A784C7000FDC837 /* LinePageControl.swift in Sources */,
+				1ACD5A152CEBB31900DA04DC /* AuthorWebViewController.swift in Sources */,
 				3F6806D329CBBE9600B4F915 /* NetworkRequest.swift in Sources */,
 				0CFCB7492A7808900009A829 /* CatalogController.swift in Sources */,
 				3F6806D129CBBE6B00B4F915 /* NetworkClient.swift in Sources */,

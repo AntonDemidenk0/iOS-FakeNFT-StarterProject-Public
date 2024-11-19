@@ -1,7 +1,7 @@
 import UIKit
 import ProgressHUD
 
-final class CatalogViewController: UIViewController {
+final class CatalogViewController: UIViewController, ErrorView {
     
     // MARK: - Properties
     
@@ -31,7 +31,7 @@ final class CatalogViewController: UIViewController {
         super.viewDidLoad()
         
         view.backgroundColor = .systemBackground
-        setupSortButton()
+        setupNavigationBar()
         setupTableView()
         configureProgressHUD()
         currentSortOption = sortOptionManager.load()
@@ -46,7 +46,7 @@ final class CatalogViewController: UIViewController {
         tableView.separatorStyle = .none
         tableView.bounces = false
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: sortButton.bottomAnchor, constant: 20),
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -17),
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
@@ -54,21 +54,20 @@ final class CatalogViewController: UIViewController {
         
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.showsHorizontalScrollIndicator = false
+        tableView.showsVerticalScrollIndicator = false
         tableView.register(CatalogTableViewCell.self, forCellReuseIdentifier: CatalogTableViewCell.identifier)
     }
-    
-    private func setupSortButton() {
-        view.addSubview(sortButton)
-        sortButton.setImage(UIImage(named: "sort"), for: .normal)
-        sortButton.tintColor = .label
-        sortButton.addTarget(self, action: #selector(sortButtonTapped), for: .touchUpInside)
-        sortButton.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            sortButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -30),
-            sortButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -25),
-            sortButton.widthAnchor.constraint(equalToConstant: 29),
-            sortButton.heightAnchor.constraint(equalToConstant: 20)
-        ])
+        
+    private func setupNavigationBar() {
+        let sortBarButton = UIBarButtonItem(
+            image: UIImage(named: "sort"),
+            style: .plain,
+            target: self,
+            action: #selector(sortButtonTapped)
+        )
+        sortBarButton.tintColor = .label
+        navigationItem.rightBarButtonItem = sortBarButton
     }
     
     private func configureProgressHUD() {

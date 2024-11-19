@@ -6,8 +6,9 @@
 //
 
 import UIKit
+import ProgressHUD
 
-final class NFTCollectionViewController: UIViewController {
+final class NFTCollectionViewController: UIViewController, ErrorView {
     
     // MARK: - Properties
     
@@ -15,6 +16,8 @@ final class NFTCollectionViewController: UIViewController {
     private let servicesAssembly: ServicesAssembly
     private var nfts: [Nft] = []
     private var images: [String: UIImage] = [:]
+    
+    // MARK: - UI Elements
     
     private lazy var coverImageView: UIImageView = {
         let imageView = UIImageView()
@@ -45,6 +48,7 @@ final class NFTCollectionViewController: UIViewController {
         authorLabel.textColor = .secondaryLabel
         authorLabel.numberOfLines = 1
         authorLabel.textColor = .label
+        authorLabel.isUserInteractionEnabled = true
         return authorLabel
     }()
     
@@ -70,10 +74,10 @@ final class NFTCollectionViewController: UIViewController {
     
     private lazy var nftCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.itemSize = CGSize(width: 108, height: 192)
         layout.minimumLineSpacing = 16
         layout.minimumInteritemSpacing = 16
-        layout.sectionInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+        layout.sectionInset = UIEdgeInsets(top: 16, left: 16, bottom: 16 + tabBarHeight, right: 16)
+        layout.itemSize = calculateItemSize()
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -81,9 +85,10 @@ final class NFTCollectionViewController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.backgroundColor = .clear
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.showsVerticalScrollIndicator = false
         return collectionView
     }()
-    
     
     // MARK: - Initialization
     
@@ -105,9 +110,35 @@ final class NFTCollectionViewController: UIViewController {
         configureView()
         configureCover()
         fetchNFTs()
+        setupCustomBackButton()
     }
     
     // MARK: - Setup Methods
+    
+    private func setupCustomBackButton() {
+        let backButton = UIBarButtonItem(
+            image: UIImage(systemName: "chevron.left"),
+            style: .plain,
+            target: self,
+            action: #selector(customBackButtonTapped)
+        )
+        backButton.tintColor = .black
+        navigationItem.leftBarButtonItem = backButton
+    }
+        
+    private func calculateItemSize() -> CGSize {
+        let totalWidth = UIScreen.main.bounds.width
+        let inset: CGFloat = 16 * 2
+        let spacing: CGFloat = 16 * 2
+        let numberOfItemsPerRow: CGFloat = 3
+        let itemWidth = (totalWidth - inset - spacing) / numberOfItemsPerRow
+        return CGSize(width: itemWidth, height: itemWidth * 1.78)
+    }
+    
+    private var tabBarHeight: CGFloat {
+        return tabBarController?.tabBar.frame.height ?? 49
+    }
+    
     private func setupUI() {
         view.backgroundColor = .systemBackground
         
@@ -140,8 +171,15 @@ final class NFTCollectionViewController: UIViewController {
             nftCollectionView.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 16),
             nftCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             nftCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            nftCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            nftCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
+        
+        addTapGestureToAuthorLabel()
+    }
+    
+    private func addTapGestureToAuthorLabel() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(authorLabelTapped))
+        authorLabel.addGestureRecognizer(tapGesture)
     }
     
     private func initializePlaceholderNFTs() {
@@ -149,8 +187,6 @@ final class NFTCollectionViewController: UIViewController {
             Nft(id: nftID, name: "Loading...", images: [], rating: 0, description: "", price: 0, author: "")
         }
     }
-
-
     
     private func configureView() {
         titleLabel.text = collection.name.capitalized
@@ -166,7 +202,7 @@ final class NFTCollectionViewController: UIViewController {
             string: collection.author,
             attributes: [
                 .font: UIFont.systemFont(ofSize: 15, weight: .regular),
-                .foregroundColor: UIColor.systemBlue
+                .foregroundColor: UIColor.systemBlue,
             ]
         ))
         
@@ -174,6 +210,8 @@ final class NFTCollectionViewController: UIViewController {
         
         descriptionLabel.text = collection.description
     }
+    
+    // MARK: - Data Loading
     
     private func configureCover() {
         ImageLoader.shared.loadImage(from: collection.cover) { [weak self] result in
@@ -189,23 +227,50 @@ final class NFTCollectionViewController: UIViewController {
     }
     
     private func fetchNFTs() {
+        initializePlaceholderNFTs()
+        nftCollectionView.reloadData()
+        
         servicesAssembly.nftService.fetchNFTs(nftIDs: collection.nfts) { [weak self] result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let nfts):
                     self?.nfts = nfts
-                    self?.loadImages(for: nfts)
-                    self?.nftCollectionView.reloadData()
-                case .failure(let error):
-                    print("Failed to load NFTs: \(error.localizedDescription)")
+                    
+                    for nft in nfts {
+                        print("NFT ID: \(nft.id), Author: \(nft.author)")
+                    }
+                    
+                    self?.loadImages(for: nfts) {
+                        self?.nftCollectionView.reloadData()
+                    }
+                case .failure:
+                    let errorModel = ErrorModel(
+                        message: NSLocalizedString(
+                            "Unable to load NFTs. Please check your internet connection and try again.",
+                            comment: "Не удалось загрузить NFT. Проверьте подключение к интернету и повторите попытку."
+                        ),
+                        actionText: NSLocalizedString("Retry", comment: "Повторить"),
+                        action: { [weak self] in
+                            self?.fetchNFTs()
+                            self?.configureCover()
+                        }
+                    )
+                    self?.showError(errorModel)
                 }
             }
         }
     }
     
-    private func loadImages(for nfts: [Nft]) {
+    private func loadImages(for nfts: [Nft], completion: @escaping () -> Void) {
+        var completedDownloads = 0
+        let totalDownloads = nfts.count
+        
         for (index, nft) in nfts.enumerated() {
-            guard let imageUrl = nft.imageUrls.first?.absoluteString else { continue }
+            guard let imageUrl = nft.imageUrls.first?.absoluteString else {
+                completedDownloads += 1
+                if completedDownloads == totalDownloads { completion() }
+                continue
+            }
             
             ImageLoader.shared.loadImage(from: imageUrl) { [weak self] result in
                 DispatchQueue.main.async {
@@ -215,13 +280,57 @@ final class NFTCollectionViewController: UIViewController {
                         self.images[nft.id] = image
                     case .failure:
                         self.images[nft.id] = UIImage(named: "placeholder")
+                        if index == 0 {
+                            let errorModel = ErrorModel(
+                                message: NSLocalizedString(
+                                    "Failed to load some images. Please check your connection.",
+                                    comment: "Не удалось загрузить некоторые изображения. Проверьте подключение к интернету."
+                                ),
+                                actionText: NSLocalizedString("Retry", comment: "Повторить"),
+                                action: { [weak self] in
+                                    self?.fetchNFTs()
+                                }
+                            )
+                            self.showError(errorModel)
+                        }
                     }
+                    
+                    completedDownloads += 1
+                    if completedDownloads == totalDownloads {
+                        completion()
+                    }
+                    
                     if let cell = self.nftCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? NFTCollectionViewCell {
                         cell.configure(with: nft, image: self.images[nft.id])
                     }
                 }
             }
         }
+    }
+    
+    @objc
+    private func customBackButtonTapped() {
+        navigationController?.popViewController(animated: true)
+    }
+    
+    @objc
+    private func authorLabelTapped() {
+        guard let nftAuthorURLString = nfts.first?.author.trimmingCharacters(in: .whitespacesAndNewlines),
+              !nftAuthorURLString.isEmpty,
+              let websiteURL = URL(string: nftAuthorURLString) else {
+            showError(ErrorModel(
+                message: "Author's website is not available.",
+                actionText: "OK",
+                action: {}
+            ))
+            return
+        }
+        
+        print("NFT Author URL: \(nftAuthorURLString)")
+        
+        let webViewController = AuthorWebViewController(url: websiteURL)
+        let navigationController = UINavigationController(rootViewController: webViewController)
+        self.present(navigationController, animated: true)
     }
 }
 

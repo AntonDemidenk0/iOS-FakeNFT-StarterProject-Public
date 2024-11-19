@@ -1,9 +1,5 @@
 import Foundation
 
-//struct Nft: Decodable, Equatable {
-//    let id: String
-//    let images: [URL]
-//}
 
 struct Nft: Decodable {
     let id: String

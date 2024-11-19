@@ -6,6 +6,7 @@ protocol NftService {
     func loadNft(id: String, completion: @escaping NftCompletion)
     func fetchCollections(completion: @escaping (Result<[NFTCollection], Error>) -> Void)
     func fetchNFTs(nftIDs: [String], completion: @escaping (Result<[Nft], Error>) -> Void)
+    
 }
 
 final class NftServiceImpl: NftService {
@@ -59,13 +60,12 @@ final class NftServiceImpl: NftService {
             completion(result)
         }
     }
-        
+            
     func fetchNFTs(nftIDs: [String], completion: @escaping (Result<[Nft], Error>) -> Void) {
         var nfts: [Nft] = []
         var missingIds: [String] = []
         let dispatchGroup = DispatchGroup()
 
-        // Проверяем локальное хранилище
         for id in nftIDs {
             if let cachedNft = storage.getNft(with: id) {
                 nfts.append(cachedNft)
@@ -125,3 +125,4 @@ final class NftServiceImpl: NftService {
         }
     }
 }
+

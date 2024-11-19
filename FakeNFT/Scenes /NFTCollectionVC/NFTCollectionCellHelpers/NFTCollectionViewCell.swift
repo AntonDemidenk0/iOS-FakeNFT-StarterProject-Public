@@ -61,6 +61,7 @@ final class NFTCollectionViewCell: UICollectionViewCell, LoadingView {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .horizontal
         stackView.spacing = 2
+        stackView.alignment = .center 
         return stackView
     }()
     
@@ -92,68 +93,63 @@ final class NFTCollectionViewCell: UICollectionViewCell, LoadingView {
     }
     
     // MARK: - Layout Setup
+    
     private func setupLayout() {
         contentView.addSubview(nftImageView)
         contentView.addSubview(activityIndicator)
         contentView.addSubview(favoriteButton)
-        contentView.addSubview(nameLabel)
         contentView.addSubview(ratingStackView)
-        contentView.addSubview(priceLabel)
-        contentView.addSubview(cartButton)
-        
+
+        let nameAndPriceStack = UIStackView(arrangedSubviews: [nameLabel, priceLabel])
+        nameAndPriceStack.translatesAutoresizingMaskIntoConstraints = false
+        nameAndPriceStack.axis = .vertical
+        nameAndPriceStack.spacing = 4
+
+        let nameAndCartStack = UIStackView(arrangedSubviews: [nameAndPriceStack, cartButton])
+        nameAndCartStack.translatesAutoresizingMaskIntoConstraints = false
+        nameAndCartStack.axis = .horizontal
+        nameAndCartStack.spacing = 8
+        nameAndCartStack.alignment = .center
+
+        contentView.addSubview(nameAndCartStack)
+
         NSLayoutConstraint.activate([
             // NFT Image
             nftImageView.topAnchor.constraint(equalTo: contentView.topAnchor),
             nftImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             nftImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             nftImageView.heightAnchor.constraint(equalToConstant: 108),
-            
+
             activityIndicator.centerYAnchor.constraint(equalTo: nftImageView.centerYAnchor),
             activityIndicator.centerXAnchor.constraint(equalTo: nftImageView.centerXAnchor),
-            
+
             // Favorite Button
             favoriteButton.topAnchor.constraint(equalTo: nftImageView.topAnchor, constant: 12),
             favoriteButton.trailingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: -10),
             favoriteButton.widthAnchor.constraint(equalToConstant: 21),
             favoriteButton.heightAnchor.constraint(equalToConstant: 18),
-            
+
             // Rating Stack
             ratingStackView.topAnchor.constraint(equalTo: nftImageView.bottomAnchor, constant: 4),
             ratingStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            ratingStackView.widthAnchor.constraint(equalToConstant: 68),
-            ratingStackView.heightAnchor.constraint(equalToConstant: 12),
-            
-            // Name Label
-            nameLabel.topAnchor.constraint(equalTo: ratingStackView.bottomAnchor, constant: 8),
-            nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            nameLabel.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor),
-                        
-            // Price Label
-            priceLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 6),
-            priceLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            
+            ratingStackView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor),
+
+            // Name and Cart Stack
+            nameAndCartStack.topAnchor.constraint(equalTo: ratingStackView.bottomAnchor, constant: 8),
+            nameAndCartStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            nameAndCartStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+
+            // Name Label (внутри стека)
+            nameLabel.leadingAnchor.constraint(equalTo: nameAndPriceStack.leadingAnchor),
+            nameLabel.trailingAnchor.constraint(lessThanOrEqualTo: nameAndPriceStack.trailingAnchor),
+
             // Cart Button
-            cartButton.centerYAnchor.constraint(equalTo: priceLabel.centerYAnchor),
-            cartButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            cartButton.widthAnchor.constraint(equalToConstant: 24),
-            cartButton.heightAnchor.constraint(equalToConstant: 24)
+            cartButton.widthAnchor.constraint(equalToConstant: 40),
+            cartButton.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
-    
-    // MARK: - Configure Cell
 
-    private func loadImage(from url: String) {
-        ImageLoader.shared.loadImage(from: url) { [weak self] result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let image):
-                    self?.nftImageView.image = image
-                case .failure:
-                    self?.nftImageView.image = UIImage(named: "placeholder")
-                }
-            }
-        }
-    }
+    // MARK: - Configure Cell
     
     private func setupRating(rating: Int) {
         ratingStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
@@ -166,7 +162,7 @@ final class NFTCollectionViewCell: UICollectionViewCell, LoadingView {
             starImageView.tintColor = i < rating ? .systemYellow : .lightGray
             NSLayoutConstraint.activate([
                 starImageView.widthAnchor.constraint(equalToConstant: 12),
-                starImageView.heightAnchor.constraint(equalToConstant: 11.25)
+                starImageView.heightAnchor.constraint(equalTo: starImageView.widthAnchor)
             ])
             ratingStackView.addArrangedSubview(starImageView)
         }
@@ -195,7 +191,9 @@ final class NFTCollectionViewCell: UICollectionViewCell, LoadingView {
 
     // MARK: - Configure Cell
     func configure(with nft: Nft, image: UIImage?) {
-        nameLabel.text = nft.name
+        let firstWord = nft.name.split(separator: " ").first.map(String.init) ?? nft.name
+        nameLabel.text = firstWord
+
         priceLabel.text = nft.price > 0 ? "\(nft.price) ETH" : "Loading..."
         
         if let image = image {
