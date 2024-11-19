@@ -81,7 +81,7 @@ final class CatalogViewController: UIViewController, ErrorView {
     private func fetchCollections() {
         guard !isLoading else { return }
         isLoading = true
-        
+
         ProgressHUD.show("Loading...")
         servicesAssembly.nftService.fetchCollections { [weak self] (result: Result<[NFTCollection], Error>) in
             DispatchQueue.main.async {
@@ -89,15 +89,21 @@ final class CatalogViewController: UIViewController, ErrorView {
                 self?.isLoading = false
                 switch result {
                 case .success(let collections):
-                    self?.collections = collections
-                    self?.filteredCollections = collections
-                    self?.tableView.reloadData() // Полностью перезагружаем таблицу
+                    let uniqueCollections = collections.map { collection -> NFTCollection in
+                        var uniqueCollection = collection
+                        uniqueCollection.nfts = Array(Set(collection.nfts))
+                        return uniqueCollection
+                    }
+                    self?.collections = uniqueCollections
+                    self?.filteredCollections = uniqueCollections
+                    self?.tableView.reloadData()
                 case .failure(let error):
                     self?.showNetworkErrorAlert(error: error)
                 }
             }
         }
     }
+
     
     // MARK: - Sorting
     
@@ -223,7 +229,9 @@ extension CatalogViewController: UITableViewDelegate, UITableViewDataSource {
         
         let collection = filteredCollections[indexPath.row]
         let imageUrl = collection.cover
-        cell.configure(with: collection.name, nftCount: collection.nfts.count)
+        let uniqueNFTCount = Set(collection.nfts).count
+        cell.configure(with: collection.name, nftCount: uniqueNFTCount)
+
                 
         ImageLoader.shared.loadImage(from: imageUrl) { [weak tableView] result in
             DispatchQueue.main.async {

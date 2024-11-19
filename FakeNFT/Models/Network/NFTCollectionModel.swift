@@ -11,7 +11,7 @@ struct NFTCollection: Decodable, Equatable {
     let id: String
     let name: String
     let cover: String
-    let nfts: [String]
+    var nfts: [String]
     let description: String
     let author: String
 

@@ -105,7 +105,6 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        initializePlaceholderNFTs()
         setupUI()
         configureView()
         configureCover()
@@ -182,8 +181,8 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
         authorLabel.addGestureRecognizer(tapGesture)
     }
     
-    private func initializePlaceholderNFTs() {
-        nfts = collection.nfts.map { nftID in
+    private func initializePlaceholderNFTs(with nftIDs: [String]) {
+        nfts = nftIDs.map { nftID in
             Nft(id: nftID, name: "Loading...", images: [], rating: 0, description: "", price: 0, author: "")
         }
     }
@@ -227,19 +226,16 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
     }
     
     private func fetchNFTs() {
-        initializePlaceholderNFTs()
+        let uniqueNftIDs = Array(Set(collection.nfts))
+        
+        initializePlaceholderNFTs(with: uniqueNftIDs)
         nftCollectionView.reloadData()
         
-        servicesAssembly.nftService.fetchNFTs(nftIDs: collection.nfts) { [weak self] result in
+        servicesAssembly.nftService.fetchNFTs(nftIDs: uniqueNftIDs) { [weak self] result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let nfts):
                     self?.nfts = nfts
-                    
-                    for nft in nfts {
-                        print("NFT ID: \(nft.id), Author: \(nft.author)")
-                    }
-                    
                     self?.loadImages(for: nfts) {
                         self?.nftCollectionView.reloadData()
                     }
@@ -260,6 +256,7 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
             }
         }
     }
+
     
     private func loadImages(for nfts: [Nft], completion: @escaping () -> Void) {
         var completedDownloads = 0
