@@ -19,6 +19,7 @@ final class ProfileViewController: UIViewController {
     private var profile: Profile?
     private var myNFTs: [String]?
     private let myNFTViewController = MyNFTViewController()
+    private var blockingView: UIView?
     
     // MARK: - UI Elements
     private lazy var editProfileButton: UIButton = {
@@ -132,6 +133,9 @@ final class ProfileViewController: UIViewController {
         var loadedNFTs: [MyNFT] = []
         let dispatchGroup = DispatchGroup()
         
+        ProgressHUD.show()
+        disableUserInteraction()
+        
         for id in ids {
             dispatchGroup.enter()
             
@@ -147,13 +151,18 @@ final class ProfileViewController: UIViewController {
         }
         
         dispatchGroup.notify(queue: .main) {
-            if let navigationController = self.navigationController {
-                let myNFTViewController = MyNFTViewController()
-                myNFTViewController.nfts = loadedNFTs
-                myNFTViewController.hidesBottomBarWhenPushed = true
-                navigationController.pushViewController(myNFTViewController, animated: true)
-            }
+            self.enableUserInteraction()
+            ProgressHUD.dismiss()
+            self.showNFTScreen(with: loadedNFTs)
         }
+    }
+    
+    private func showNFTScreen(with nfts: [MyNFT]) {
+        guard let navigationController = self.navigationController else { return }
+        let myNFTViewController = MyNFTViewController()
+        myNFTViewController.nfts = nfts
+        myNFTViewController.hidesBottomBarWhenPushed = true
+        navigationController.pushViewController(myNFTViewController, animated: true)
     }
     
     // MARK: - Actions
@@ -192,8 +201,26 @@ final class ProfileViewController: UIViewController {
             webView.leadingAnchor.constraint(equalTo: webViewController.view.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: webViewController.view.trailingAnchor)
         ])
-        
+        webViewController.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(webViewController, animated: true)
+    }
+    
+    private func disableUserInteraction() {
+        if blockingView == nil {
+            let view = UIView(frame: UIScreen.main.bounds)
+            view.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+            view.isUserInteractionEnabled = true
+            blockingView = view
+        }
+        
+        if let blockingView = blockingView {
+            UIApplication.shared.windows.first?.addSubview(blockingView)
+        }
+    }
+    
+    private func enableUserInteraction() {
+        blockingView?.removeFromSuperview()
+        blockingView = nil
     }
 }
 

@@ -6,6 +6,12 @@
 //
 import UIKit
 
+enum SortType {
+        case price
+        case rating
+        case name
+    }
+
 final class MyNFTViewController: UIViewController {
     
     var nfts: [MyNFT] = []
@@ -52,8 +58,40 @@ final class MyNFTViewController: UIViewController {
     }
     
     @objc private func filterButtonTapped() {
-        print("Filter button tapped")
+        let alert = UIAlertController(title: NSLocalizedString("Sort by", comment: ""), message: nil, preferredStyle: .actionSheet)
+        
+        alert.addAction(UIAlertAction(title: NSLocalizedString("by Price", comment: ""), style: .default, handler: { _ in
+            self.sortNFTs(by: .price)
+        }))
+        
+        alert.addAction(UIAlertAction(title: NSLocalizedString("by Rating", comment: ""), style: .default, handler: { _ in
+            self.sortNFTs(by: .rating)
+        }))
+        
+        alert.addAction(UIAlertAction(title: NSLocalizedString("by Name", comment: ""), style: .default, handler: { _ in
+            self.sortNFTs(by: .name)
+        }))
+        
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Close", comment: ""), style: .cancel, handler: nil))
+        
+        present(alert, animated: true, completion: nil)
     }
-}
+    
+    func sortNFTs(by type: SortType) {
+            switch type {
+            case .price:
+                nfts.sort { $0.price < $1.price }
+            case .rating:
+                nfts.sort { $0.rating > $1.rating }
+            case .name:
+                nfts.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+            }
+            
+            if let myNFTView = view as? MyNFTView {
+                myNFTView.updateNFTs(with: nfts)
+            }
+        }
+    }
+
 
 

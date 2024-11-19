@@ -10,7 +10,11 @@ import Kingfisher
 
 final class MyNFTView: UIView {
     
-    private var nftItems: [MyNFT] = []
+    private var nftItems: [MyNFT] = [] {
+        didSet {
+            updateUI()
+        }
+    }
     
     private lazy var nftTableView: UITableView = {
         let tableView = UITableView()
@@ -20,6 +24,17 @@ final class MyNFTView: UIView {
         tableView.separatorStyle = .none
         tableView.register(NFTCell.self, forCellReuseIdentifier: NFTCell.reuseIdentifier)
         return tableView
+    }()
+    
+    private lazy var placeholderLabel: UILabel = {
+        let label = UILabel()
+        label.text = NSLocalizedString("noNFTs", comment: "")
+        label.textAlignment = .center
+        label.font = UIFont.boldSystemFont(ofSize: 17)
+        label.textColor = UIColor(named: "YBlackColor")
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.isHidden = true
+        return label
     }()
     
     override init(frame: CGRect) {
@@ -36,6 +51,7 @@ final class MyNFTView: UIView {
     private func setupViews() {
         backgroundColor = .white
         addSubview(nftTableView)
+        addSubview(placeholderLabel)
     }
     
     private func setupConstraints() {
@@ -44,9 +60,19 @@ final class MyNFTView: UIView {
             nftTableView.bottomAnchor.constraint(equalTo: bottomAnchor),
             nftTableView.leadingAnchor.constraint(equalTo: leadingAnchor),
             nftTableView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            
+            placeholderLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+            placeholderLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
         ])
     }
     
+    func updateUI() {
+        if nftItems.isEmpty {
+            placeholderLabel.isHidden = false
+        } else {
+            placeholderLabel.isHidden = true
+        }
+    }
     
     func updateNFTs(with nfts: [MyNFT]) {
         nftItems = nfts

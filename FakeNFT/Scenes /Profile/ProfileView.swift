@@ -192,13 +192,20 @@ extension ProfileView: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        if let myNFTTapped = myNFTTapped {
-            myNFTTapped()
-            }
-        print("Ячейка выбрана")
+        switch indexPath.row {
+           case 0:
+               if let myNFTTapped = myNFTTapped {
+                   myNFTTapped()
+               }
+           case 1:
+               print("Переход в избранные")
+           case 2:
+               print("Переход на сайт разработчика")
+           default:
+               break
+           }
+       }
     }
-}
 
 private extension ProfileView {
     enum Constraints {
