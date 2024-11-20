@@ -53,7 +53,7 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         descriptionLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         descriptionLabel.textAlignment = .left
-        descriptionLabel.textColor = .secondaryLabel
+        descriptionLabel.textColor = .label
         descriptionLabel.numberOfLines = 3
         descriptionLabel.lineBreakMode = .byTruncatingTail
         return descriptionLabel
@@ -288,19 +288,21 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
     }
 
     private func loadImages(for nfts: [Nft], completion: @escaping () -> Void) {
-        var completedDownloads = 0
-        let totalDownloads = nfts.count
+        let dispatchGroup = DispatchGroup()
         
         for (index, nft) in nfts.enumerated() {
             guard let imageUrl = nft.imageUrls.first?.absoluteString else {
-                completedDownloads += 1
-                if completedDownloads == totalDownloads { completion() }
                 continue
             }
             
+            dispatchGroup.enter()
+            
             ImageLoader.shared.loadImage(from: imageUrl) { [weak self] result in
                 DispatchQueue.main.async {
-                    guard let self = self else { return }
+                    guard let self = self else {
+                        dispatchGroup.leave()
+                        return
+                    }
                     switch result {
                     case .success(let image):
                         self.images[nft.id] = image
@@ -321,18 +323,20 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
                         }
                     }
                     
-                    completedDownloads += 1
-                    if completedDownloads == totalDownloads {
-                        completion()
-                    }
-                    
                     if let cell = self.nftCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? NFTCollectionViewCell {
                         cell.configure(with: nft, image: self.images[nft.id])
                     }
+                    
+                    dispatchGroup.leave()
                 }
             }
         }
+        
+        dispatchGroup.notify(queue: .main) {
+            completion()
+        }
     }
+
     
     private func updateCollectionViewHeight() {
         guard let layout = nftCollectionView.collectionViewLayout as? UICollectionViewFlowLayout else {

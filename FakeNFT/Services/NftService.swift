@@ -65,6 +65,7 @@ final class NftServiceImpl: NftService {
         var nfts: [Nft] = []
         var missingIds: [String] = []
         let dispatchGroup = DispatchGroup()
+        var fetchErrors: [Error] = []
 
         for id in nftIDs {
             if let cachedNft = storage.getNft(with: id) {
@@ -86,17 +87,22 @@ final class NftServiceImpl: NftService {
                 case .success(let nft):
                     nfts.append(nft)
                     self.storage.saveNft(nft)
-                case .failure:
-                    break
+                case .failure(let error):
+                    fetchErrors.append(error)
                 }
                 dispatchGroup.leave()
             }
         }
 
         dispatchGroup.notify(queue: .main) {
-            completion(.success(nfts))
+            if !fetchErrors.isEmpty {
+                completion(.failure(fetchErrors.first!))
+            } else {
+                completion(.success(nfts))
+            }
         }
     }
+
 
     private func fetchSingleNft(id: String, completion: @escaping (Result<Nft, Error>) -> Void) {
         struct FetchNftRequest: NetworkRequest {
