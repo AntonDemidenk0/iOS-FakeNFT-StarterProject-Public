@@ -17,6 +17,9 @@ final class ProfileViewController: UIViewController {
     private let servicesAssembly: ServicesAssembly
     private let profileView = ProfileView()
     private var profile: Profile?
+    private var myNFTs: [String]?
+    private let myNFTViewController = MyNFTViewController()
+    private var blockingView: UIView?
     
     // MARK: - UI Elements
     private lazy var editProfileButton: UIButton = {
@@ -54,6 +57,15 @@ final class ProfileViewController: UIViewController {
         profileView.websiteLabelTapped = { [weak self] address in
             self?.didTapOnWebsiteLabel(with: address)
         }
+        profileView.myNFTTapped = { [weak self] in
+            guard let self = self else { return }
+            guard let nftIds = self.myNFTs else {
+                self.showErrorAlert(with: NSError(domain: "com.app.error", code: 404, userInfo: [NSLocalizedDescriptionKey: "No NFTs available."]))
+                return
+            }
+            self.loadNFTs(with: nftIds)
+        }
+        
         setupNavigationBar()
         loadProfile()
     }
@@ -77,14 +89,16 @@ final class ProfileViewController: UIViewController {
     private func loadProfile() {
         ProgressHUD.show()
         servicesAssembly.profileService.loadProfile { [weak self] result in
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
                 ProgressHUD.dismiss()
                 switch result {
                 case .success(let loadedProfile):
-                    self?.profile = loadedProfile
-                    self?.profileView.updateUI(with: loadedProfile)
+                    self.profile = loadedProfile
+                    self.profileView.updateUI(with: loadedProfile)
+                    self.myNFTs = loadedProfile.nfts
                 case .failure(let error):
-                    self?.showErrorAlert(with: error)
+                    self.showErrorAlert(with: error)
                 }
             }
         }
@@ -96,24 +110,60 @@ final class ProfileViewController: UIViewController {
             message: NSLocalizedString("FailedToLoadProfile", comment: ""),
             preferredStyle: .alert
         )
-
+        
         let retryAction = UIAlertAction(
             title: NSLocalizedString("TryAgain", comment: ""),
             style: .default
         ) { [weak self] _ in
             self?.loadProfile()
         }
-
+        
         let cancelAction = UIAlertAction(
             title: NSLocalizedString("Cancel", comment: ""),
             style: .cancel,
             handler: nil
         )
-
+        
         alert.addAction(retryAction)
         alert.addAction(cancelAction)
-
+        
         present(alert, animated: true, completion: nil)
+    }
+    
+    private func loadNFTs(with ids: [String]) {
+        var loadedNFTs: [MyNFT] = []
+        let dispatchGroup = DispatchGroup()
+        
+        ProgressHUD.show()
+        disableUserInteraction()
+        
+        for id in ids {
+            dispatchGroup.enter()
+            
+            servicesAssembly.myNftService.loadNft(id: id) { [weak self] result in
+                switch result {
+                case .success(let nft):
+                    loadedNFTs.append(nft)
+                case .failure(let error):
+                    self?.showErrorAlert(with: error)
+                }
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            self.enableUserInteraction()
+            ProgressHUD.dismiss()
+            self.showNFTScreen(with: loadedNFTs)
+        }
+    }
+    
+    private func showNFTScreen(with nfts: [MyNFT]) {
+        guard let navigationController = self.navigationController else { return }
+        let myNFTViewController = MyNFTViewController()
+        myNFTViewController.nfts = nfts
+        myNFTViewController.hidesBottomBarWhenPushed = true
+        navigationController.pushViewController(myNFTViewController, animated: true)
     }
     
     // MARK: - Actions
@@ -152,15 +202,33 @@ final class ProfileViewController: UIViewController {
             webView.leadingAnchor.constraint(equalTo: webViewController.view.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: webViewController.view.trailingAnchor)
         ])
+        webViewController.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(webViewController, animated: true)
+    }
+    
+    private func disableUserInteraction() {
+        if blockingView == nil {
+            let view = UIView(frame: UIScreen.main.bounds)
+            view.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+            view.isUserInteractionEnabled = true
+            blockingView = view
+        }
         
-        webViewController.modalPresentationStyle = .pageSheet
-        present(webViewController, animated: true, completion: nil)
+        if let blockingView = blockingView {
+            UIApplication.shared.windows.first?.addSubview(blockingView)
+        }
+    }
+    
+    private func enableUserInteraction() {
+        blockingView?.removeFromSuperview()
+        blockingView = nil
     }
 }
 
 // MARK: - EditProfileDelegate
+
 extension ProfileViewController: EditProfileDelegate {
-        
+    
     func didUpdateProfile(_ profile: Profile) {
         self.profile = profile
         profileView.updateUI(with: profile)
@@ -169,7 +237,7 @@ extension ProfileViewController: EditProfileDelegate {
         let description = profile.description ?? ""
         let website = profile.website ?? ""
         let avatar = profile.avatar ?? ""
-    
+        
         
         servicesAssembly.profileService.updateProfile(
             name: name,
