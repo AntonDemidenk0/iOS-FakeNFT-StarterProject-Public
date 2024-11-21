@@ -63,6 +63,7 @@ final class NFTCell: UITableViewCell {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         label.textColor = UIColor(named: "YBlackColor")
+        label.numberOfLines = 2
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -89,6 +90,14 @@ final class NFTCell: UITableViewCell {
         stackView.addArrangedSubview(priceLabel)
         
         return stackView
+    }()
+    
+    private lazy var numberFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencySymbol = "ETH"
+        formatter.maximumFractionDigits = 2
+        return formatter
     }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -134,7 +143,7 @@ final class NFTCell: UITableViewCell {
             
             authorLabel.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 20),
             authorLabel.topAnchor.constraint(equalTo: ratingStackView.bottomAnchor, constant: 4),
-            authorLabel.heightAnchor.constraint(equalToConstant: 20),
+            authorLabel.heightAnchor.constraint(equalToConstant: 40),
             
             priceStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -39),
             priceStack.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
@@ -147,8 +156,16 @@ final class NFTCell: UITableViewCell {
             extractName(from: [imageURL])
         }
         nftNameLabel.text = extractedName
-        authorLabel.text = "\(NSLocalizedString("by", comment: "")) \(nft.name)"
-        priceLabel?.text = "\(nft.price) ETH"
+        
+        let authorName = nft.name
+            if authorName.count > 10 {
+                let formattedAuthorName = authorName.replacingOccurrences(of: " ", with: "\n")
+                authorLabel.text = "\(NSLocalizedString("by", comment: "")) \(formattedAuthorName)"
+            } else {
+                authorLabel.text = "\(NSLocalizedString("by", comment: "")) \(authorName)"
+            }
+        
+        priceLabel?.text = "\(numberFormatter.string(from: nft.price as NSNumber) ?? "\(nft.price) ETH")"
         
         if let imageURL = nft.images.first, let url = URL(string: imageURL) {
             nftImageView.kf.setImage(with: url)

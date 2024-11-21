@@ -89,15 +89,16 @@ final class ProfileViewController: UIViewController {
     private func loadProfile() {
         ProgressHUD.show()
         servicesAssembly.profileService.loadProfile { [weak self] result in
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
                 ProgressHUD.dismiss()
                 switch result {
                 case .success(let loadedProfile):
-                    self?.profile = loadedProfile
-                    self?.profileView.updateUI(with: loadedProfile)
-                    self?.myNFTs = loadedProfile.nfts
+                    self.profile = loadedProfile
+                    self.profileView.updateUI(with: loadedProfile)
+                    self.myNFTs = loadedProfile.nfts
                 case .failure(let error):
-                    self?.showErrorAlert(with: error)
+                    self.showErrorAlert(with: error)
                 }
             }
         }
@@ -139,12 +140,12 @@ final class ProfileViewController: UIViewController {
         for id in ids {
             dispatchGroup.enter()
             
-            servicesAssembly.myNftService.loadNft(id: id) { result in
+            servicesAssembly.myNftService.loadNft(id: id) { [weak self] result in
                 switch result {
                 case .success(let nft):
                     loadedNFTs.append(nft)
                 case .failure(let error):
-                    self.showErrorAlert(with: error)
+                    self?.showErrorAlert(with: error)
                 }
                 dispatchGroup.leave()
             }

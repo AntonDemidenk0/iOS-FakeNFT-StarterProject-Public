@@ -67,11 +67,7 @@ final class MyNFTView: UIView {
     }
     
     func updateUI() {
-        if nftItems.isEmpty {
-            placeholderLabel.isHidden = false
-        } else {
-            placeholderLabel.isHidden = true
-        }
+        placeholderLabel.isHidden = !nftItems.isEmpty
     }
     
     func updateNFTs(with nfts: [MyNFT]) {
@@ -92,6 +88,7 @@ extension MyNFTView: UITableViewDataSource, UITableViewDelegate {
         let cell = tableView.dequeueReusableCell(withIdentifier: NFTCell.reuseIdentifier, for: indexPath) as! NFTCell
         let nft = nftItems[indexPath.row]
         cell.configure(with: nft)
+        cell.selectionStyle = .none
         return cell
     }
     
