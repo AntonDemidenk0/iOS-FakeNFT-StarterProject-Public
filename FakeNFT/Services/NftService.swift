@@ -5,10 +5,12 @@ typealias NftCompletion = (Result<Nft, Error>) -> Void
 protocol NftService {
     func loadNft(id: String, completion: @escaping NftCompletion)
     func fetchCollections(completion: @escaping (Result<[NFTCollection], Error>) -> Void)
+    func fetchNFTs(nftIDs: [String], completion: @escaping (Result<[Nft], Error>) -> Void)
+    
 }
 
 final class NftServiceImpl: NftService {
-
+ 
     private let networkClient: NetworkClient
     private let storage: NftStorage
 
@@ -58,4 +60,75 @@ final class NftServiceImpl: NftService {
             completion(result)
         }
     }
+            
+    func fetchNFTs(nftIDs: [String], completion: @escaping (Result<[Nft], Error>) -> Void) {
+        var nfts: [Nft] = []
+        var missingIds: [String] = []
+        let dispatchGroup = DispatchGroup()
+        var fetchErrors: [Error] = []
+
+        for id in nftIDs {
+            if let cachedNft = storage.getNft(with: id) {
+                nfts.append(cachedNft)
+            } else {
+                missingIds.append(id)
+            }
+        }
+
+        if missingIds.isEmpty {
+            completion(.success(nfts))
+            return
+        }
+
+        for nftID in missingIds {
+            dispatchGroup.enter()
+            fetchSingleNft(id: nftID) { result in
+                switch result {
+                case .success(let nft):
+                    nfts.append(nft)
+                    self.storage.saveNft(nft)
+                case .failure(let error):
+                    fetchErrors.append(error)
+                }
+                dispatchGroup.leave()
+            }
+        }
+
+        dispatchGroup.notify(queue: .main) {
+            if !fetchErrors.isEmpty {
+                completion(.failure(fetchErrors.first!))
+            } else {
+                completion(.success(nfts))
+            }
+        }
+    }
+
+
+    private func fetchSingleNft(id: String, completion: @escaping (Result<Nft, Error>) -> Void) {
+        struct FetchNftRequest: NetworkRequest {
+            let nftID: String
+            
+            var endpoint: URL? {
+                URL(string: "\(RequestConstants.baseURL)/api/v1/nft/\(nftID)")
+            }
+            
+            var httpMethod: HttpMethod {
+                .get
+            }
+            
+            var headers: [String: String]? {
+                ["Authorization": "Bearer \(RequestConstants.token)"]
+            }
+            
+            var dto: Dto? {
+                nil
+            }
+        }
+
+        let request = FetchNftRequest(nftID: id)
+        networkClient.send(request: request, type: Nft.self) { result in
+            completion(result)
+        }
+    }
 }
+

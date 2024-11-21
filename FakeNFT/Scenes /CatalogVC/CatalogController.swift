@@ -1,7 +1,7 @@
 import UIKit
 import ProgressHUD
 
-final class CatalogViewController: UIViewController {
+final class CatalogViewController: UIViewController, ErrorView {
     
     // MARK: - Properties
     
@@ -31,7 +31,7 @@ final class CatalogViewController: UIViewController {
         super.viewDidLoad()
         
         view.backgroundColor = .systemBackground
-        setupSortButton()
+        setupNavigationBar()
         setupTableView()
         configureProgressHUD()
         currentSortOption = sortOptionManager.load()
@@ -46,30 +46,28 @@ final class CatalogViewController: UIViewController {
         tableView.separatorStyle = .none
         tableView.bounces = false
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: sortButton.bottomAnchor, constant: 20),
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -17),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
         
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.showsHorizontalScrollIndicator = false
+        tableView.showsVerticalScrollIndicator = false
         tableView.register(CatalogTableViewCell.self, forCellReuseIdentifier: CatalogTableViewCell.identifier)
     }
-    
-    private func setupSortButton() {
-        view.addSubview(sortButton)
-        sortButton.setImage(UIImage(named: "sort"), for: .normal)
-        sortButton.tintColor = .label
-        sortButton.addTarget(self, action: #selector(sortButtonTapped), for: .touchUpInside)
         
-        sortButton.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            sortButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 14),
-            sortButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            sortButton.widthAnchor.constraint(equalToConstant: 29),
-            sortButton.heightAnchor.constraint(equalToConstant: 20)
-        ])
+    private func setupNavigationBar() {
+        let sortBarButton = UIBarButtonItem(
+            image: UIImage(named: "sort"),
+            style: .plain,
+            target: self,
+            action: #selector(sortButtonTapped)
+        )
+        sortBarButton.tintColor = .label
+        navigationItem.rightBarButtonItem = sortBarButton
     }
     
     private func configureProgressHUD() {
@@ -83,7 +81,7 @@ final class CatalogViewController: UIViewController {
     private func fetchCollections() {
         guard !isLoading else { return }
         isLoading = true
-        
+
         ProgressHUD.show("Loading...")
         servicesAssembly.nftService.fetchCollections { [weak self] (result: Result<[NFTCollection], Error>) in
             DispatchQueue.main.async {
@@ -91,15 +89,21 @@ final class CatalogViewController: UIViewController {
                 self?.isLoading = false
                 switch result {
                 case .success(let collections):
-                    self?.collections = collections
-                    self?.filteredCollections = collections
-                    self?.tableView.reloadData() // Полностью перезагружаем таблицу
+                    let uniqueCollections = collections.map { collection -> NFTCollection in
+                        var uniqueCollection = collection
+                        uniqueCollection.nfts = Array(Set(collection.nfts))
+                        return uniqueCollection
+                    }
+                    self?.collections = uniqueCollections
+                    self?.filteredCollections = uniqueCollections
+                    self?.tableView.reloadData()
                 case .failure(let error):
                     self?.showNetworkErrorAlert(error: error)
                 }
             }
         }
     }
+
     
     // MARK: - Sorting
     
@@ -225,7 +229,9 @@ extension CatalogViewController: UITableViewDelegate, UITableViewDataSource {
         
         let collection = filteredCollections[indexPath.row]
         let imageUrl = collection.cover
-        cell.configure(with: collection.name, nftCount: collection.nfts.count)
+        let uniqueNFTCount = Set(collection.nfts).count
+        cell.configure(with: collection.name, nftCount: uniqueNFTCount)
+
                 
         ImageLoader.shared.loadImage(from: imageUrl) { [weak tableView] result in
             DispatchQueue.main.async {
@@ -241,6 +247,16 @@ extension CatalogViewController: UITableViewDelegate, UITableViewDataSource {
         }
         return cell
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selectedCollection = filteredCollections[indexPath.row]
+        let nftCollectionVC = NFTCollectionViewController(
+            collection: selectedCollection,
+            servicesAssembly: servicesAssembly
+        )
+        navigationController?.pushViewController(nftCollectionVC, animated: true)
+    }
+
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 179

@@ -7,7 +7,8 @@ final class CatalogTableViewCell: UITableViewCell {
     static let identifier: String = "CatalogTableViewCell"
     
     // MARK: - UI Elements
-    
+   
+    private let containerView = UIView()
     private let collectionImageView = UIImageView()
     private let footerView = UIView()
     private let titleLabel = UILabel()
@@ -19,6 +20,7 @@ final class CatalogTableViewCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupLayout()
         selectionStyle = .none
+        backgroundColor = .clear
     }
     
     required init?(coder: NSCoder) {
@@ -26,11 +28,24 @@ final class CatalogTableViewCell: UITableViewCell {
     }
     
     // MARK: - Setup Methods
-    
+
     private func setupLayout() {
-        contentView.addSubview(collectionImageView)
-        contentView.addSubview(activityIndicator)
-        contentView.addSubview(footerView)
+        contentView.addSubview(containerView)
+        containerView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            containerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+        ])
+        
+        containerView.backgroundColor = .systemBackground
+        containerView.layer.cornerRadius = 12
+        containerView.clipsToBounds = true
+        
+        containerView.addSubview(collectionImageView)
+        containerView.addSubview(activityIndicator)
+        containerView.addSubview(footerView)
         footerView.addSubview(titleLabel)
         
         collectionImageView.translatesAutoresizingMaskIntoConstraints = false
@@ -39,22 +54,22 @@ final class CatalogTableViewCell: UITableViewCell {
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            collectionImageView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            collectionImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            collectionImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            collectionImageView.topAnchor.constraint(equalTo: containerView.topAnchor),
+            collectionImageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            collectionImageView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
             
             activityIndicator.centerXAnchor.constraint(equalTo: collectionImageView.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: collectionImageView.centerYAnchor),
             
             footerView.topAnchor.constraint(equalTo: collectionImageView.bottomAnchor),
-            footerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            footerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            footerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            footerView.heightAnchor.constraint(equalToConstant: 40),
+            footerView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            footerView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+            footerView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
+            footerView.heightAnchor.constraint(equalToConstant: 30),
             
             titleLabel.centerYAnchor.constraint(equalTo: footerView.centerYAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: footerView.leadingAnchor, constant: 8),
-            titleLabel.trailingAnchor.constraint(equalTo: footerView.trailingAnchor, constant: -8)
+            titleLabel.leadingAnchor.constraint(equalTo: footerView.leadingAnchor),
+            titleLabel.trailingAnchor.constraint(equalTo: footerView.trailingAnchor)
         ])
         
         collectionImageView.layer.cornerRadius = 12
