@@ -1,4 +1,5 @@
 import UIKit
+import ProgressHUD
 
 final class ProfileNFTsCollectionView: UIViewController {
     

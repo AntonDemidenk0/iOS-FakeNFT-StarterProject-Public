@@ -47,6 +47,7 @@
 		69C31D8E2CEF798200CDE688 /* ProfileModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C31D8D2CEF797300CDE688 /* ProfileModel.swift */; };
 		69C31D902CEF79DD00CDE688 /* PersonModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C31D8F2CEF79D600CDE688 /* PersonModel.swift */; };
 		69C31D982CEF7C6300CDE688 /* ProgressHUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C31D972CEF7C6300CDE688 /* ProgressHUD.swift */; };
+		69C31D9A2CEF7F9200CDE688 /* Nft.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C31D992CEF7F9200CDE688 /* Nft.swift */; };
 		E19CD5AB2A98B56600CA39A5 /* NftImageCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E19CD5AA2A98B56600CA39A5 /* NftImageCollectionViewCell.swift */; };
 		E1A1B9DA2AA01CE400C3AFBC /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A1B9D92AA01CE400C3AFBC /* TabBarController.swift */; };
 		E1CD40DC2A96BECC00BE7FE8 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = E1CD40DB2A96BECC00BE7FE8 /* Localizable.strings */; };
@@ -112,6 +113,7 @@
 		69C31D8D2CEF797300CDE688 /* ProfileModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileModel.swift; sourceTree = "<group>"; };
 		69C31D8F2CEF79D600CDE688 /* PersonModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonModel.swift; sourceTree = "<group>"; };
 		69C31D972CEF7C6300CDE688 /* ProgressHUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressHUD.swift; sourceTree = "<group>"; };
+		69C31D992CEF7F9200CDE688 /* Nft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nft.swift; sourceTree = "<group>"; };
 		E19CD5AA2A98B56600CA39A5 /* NftImageCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftImageCollectionViewCell.swift; sourceTree = "<group>"; };
 		E1A1B9D92AA01CE400C3AFBC /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 		E1CD40D82A96BE7D00BE7FE8 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Main.strings; sourceTree = "<group>"; };
@@ -334,6 +336,7 @@
 		3F6806D829CC979D00B4F915 /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				69C31D992CEF7F9200CDE688 /* Nft.swift */,
 				69C31D8F2CEF79D600CDE688 /* PersonModel.swift */,
 				69C31D8D2CEF797300CDE688 /* ProfileModel.swift */,
 				0CFCB7412A78013E0009A829 /* NFTModel.swift */,
@@ -545,6 +548,7 @@
 				3F478ED129DB476500F6D39E /* Fonts.swift in Sources */,
 				0C79EE6A2A76DE1000EE90EA /* NftDetailAssembly.swift in Sources */,
 				3FC8C39329D246BA0081F015 /* DateFormatters+Presets.swift in Sources */,
+				69C31D9A2CEF7F9200CDE688 /* Nft.swift in Sources */,
 				0CFCB7422A78013E0009A829 /* NFTModel.swift in Sources */,
 				0CF2C2DD2A783CE600FDC837 /* ErrorView.swift in Sources */,
 				0C79EE682A76DE0900EE90EA /* NftDetailPresenter.swift in Sources */,

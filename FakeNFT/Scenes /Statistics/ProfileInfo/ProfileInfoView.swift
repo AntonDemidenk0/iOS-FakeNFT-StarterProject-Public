@@ -1,66 +1,22 @@
 import UIKit
+import Kingfisher
 
 final class ProfileInfoView: UIViewController {
     
+    // MARK: - Properties
+    
     private var object: Person?
     
-    private let stackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .horizontal
-        stackView.spacing = 16
-        return stackView
-    }()
+    // MARK: - UI Elements
     
-    private let avatarImage: UIImageView = {
-        let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.layer.cornerRadius = 28
-        imageView.clipsToBounds = true
-        return imageView
-    }()
+    private lazy var stackView: UIStackView = createStackView()
+    private lazy var avatarImage: UIImageView = createAvatarImageView()
+    private lazy var nameLabel: UILabel = createNameLabel()
+    private lazy var descriptionText: UILabel = createDescriptionLabel()
+    private lazy var webButton: UIButton = createWebButton()
+    private lazy var nftCollection: UITableView = createNFTCollectionTableView()
     
-    private let nameLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 22, weight: .bold)
-        return label
-    }()
-    
-    private let descriptionText: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.lineBreakMode = .byWordWrapping
-        label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 13, weight: .light)
-        return label
-    }()
-    
-    private lazy var webButton: UIButton = {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.layer.cornerRadius = 16
-        button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor.black.cgColor
-        button.setTitle("Перейти на сайт пользователя", for: .normal)
-        button.setTitleColor(.black, for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .light)
-        button.addTarget(self, action: #selector(webButtonTapped), for: .touchUpInside)
-        return button
-    }()
-    
-    private lazy var nftCollection: UITableView = {
-        let tableView = UITableView()
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.dataSource = self
-        tableView.delegate = self
-        tableView.register(NFTsTableViewCell.self, forCellReuseIdentifier: "NFTsTableViewCell")
-        tableView.separatorStyle = .none
-        tableView.isScrollEnabled = false
-        tableView.showsVerticalScrollIndicator = false
-        tableView.showsHorizontalScrollIndicator = false
-        return tableView
-    }()
+    // MARK: - Initializer
     
     init(object: Person?) {
         self.object = object
@@ -68,8 +24,10 @@ final class ProfileInfoView: UIViewController {
     }
     
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        preconditionFailure("init(coder:) must be implemented")
     }
+    
+    // MARK: - Life Cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -78,11 +36,24 @@ final class ProfileInfoView: UIViewController {
         configure()
     }
     
+    // MARK: - Configuration
+    
+    private func configure() {
+        guard let object = self.object else { return }
+        let url = URL(string: object.avatar)
+        avatarImage.kf.setImage(with: url)
+        nameLabel.text = object.name
+        descriptionText.text = object.description
+    }
+    
+    // MARK: - Setup Methods
+    
     private func setupViews() {
         view.backgroundColor = .systemBackground
         navigationItem.backButtonTitle = ""
         stackView.addArrangedSubview(avatarImage)
         stackView.addArrangedSubview(nameLabel)
+        
         [stackView, descriptionText, webButton, nftCollection].forEach { view.addSubview($0) }
     }
     
@@ -111,18 +82,76 @@ final class ProfileInfoView: UIViewController {
         ])
     }
     
-    private func configure() {
-        avatarImage.image = UIImage(named: object?.image ?? "")
-        nameLabel.text = object?.name
-        descriptionText.text = object?.description
-    }
+    // MARK: - Action Methods
     
     @objc private func webButtonTapped() {
-        guard let url = object?.webSite, !url.isEmpty else { return }
+        guard let url = object?.website, !url.isEmpty else { return }
         let webVC = WebViewController(url: url)
         navigationController?.pushViewController(webVC, animated: true)
     }
+    
+    // MARK: - UI Elements Creation
+    
+    private func createStackView() -> UIStackView {
+        let stackView = UIStackView()
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .horizontal
+        stackView.spacing = 16
+        return stackView
+    }
+    
+    private func createAvatarImageView() -> UIImageView {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.layer.cornerRadius = 35
+        imageView.clipsToBounds = true
+        return imageView
+    }
+    
+    private func createNameLabel() -> UILabel {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 22, weight: .bold)
+        return label
+    }
+    
+    private func createDescriptionLabel() -> UILabel {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.lineBreakMode = .byWordWrapping
+        label.numberOfLines = 0
+        label.font = .systemFont(ofSize: 13, weight: .light)
+        return label
+    }
+    
+    private func createWebButton() -> UIButton {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.layer.cornerRadius = 16
+        button.layer.borderWidth = 1
+        button.layer.borderColor = UIColor.black.cgColor
+        button.setTitle("Перейти на сайт пользователя", for: .normal)
+        button.setTitleColor(.black, for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .light)
+        button.addTarget(self, action: #selector(webButtonTapped), for: .touchUpInside)
+        return button
+    }
+    
+    private func createNFTCollectionTableView() -> UITableView {
+        let tableView = UITableView()
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.register(NFTsTableViewCell.self, forCellReuseIdentifier: "NFTsTableViewCell")
+        tableView.separatorStyle = .none
+        tableView.isScrollEnabled = false
+        tableView.showsVerticalScrollIndicator = false
+        tableView.showsHorizontalScrollIndicator = false
+        return tableView
+    }
 }
+
+// MARK: - UITableViewDataSource
 
 extension ProfileInfoView: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { 1 }
@@ -132,16 +161,18 @@ extension ProfileInfoView: UITableViewDataSource {
             return UITableViewCell()
         }
         cell.accessoryView = UIImageView(image: UIImage(systemName: "chevron.right")?.withTintColor(.black, renderingMode: .alwaysOriginal))
-        cell.configure(with: object?.nftCount ?? 0)
+        cell.configure(nftCount: object?.nfts.count ?? 0)
         return cell
     }
 }
 
+// MARK: - UITableViewDelegate
+
 extension ProfileInfoView: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let nfts = object?.nft else { return }
-        let collectionVC = ProfileNFTsCollectionView(nft: nfts)
-        collectionVC.hidesBottomBarWhenPushed = true
-        navigationController?.pushViewController(collectionVC, animated: true)
+        guard let object = object?.nfts else { return }
+        let vc = ProfileNFTsCollectionView(nftIDs: object)
+        vc.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(vc, animated: true)
     }
 }

@@ -1,6 +1,14 @@
 import UIKit
+import ProgressHUD
 
 final class StatisticsViewController: UIViewController {
+    
+    // MARK: - Properties
+    
+    private let statisticService = StatisticService.shared
+    private var observer: NSObjectProtocol?
+    private var isLoadingData = false
+    private var objects: [Person] = []
     
     private lazy var ratingCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -17,33 +25,28 @@ final class StatisticsViewController: UIViewController {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.tintColor = .black
-        if let sortImage = UIImage(named: "sort") {
-            button.setImage(sortImage, for: .normal)
-        }
+        button.setImage(UIImage(named: "sort"), for: .normal)
         return button
     }()
     
-    var objects: [Person] = [
-        Person(name: "Lea", image: "lea", webSite: "https://ya.ru", rating: 1, nftCount: 2, description: "Дизайнер из Казани, люблю цифровое искусство \nи бейглы. В моей коллекции уже 100+ NFT,\nи еще больше — на моём сайте. Открыт\nк коллаборациям.", nft: [
-            NFTModel(image: "mok", name: "Archie", price: 1.78, isLiked: false, rating: 3, isAdded: false),
-            NFTModel(image: "mok2", name: "Greena", price: 1.98, isLiked: true, rating: 2, isAdded: false)
-        ]),
-        Person(name: "Mads", image: "mads", webSite: "https://google.com", rating: 2, nftCount: 0, description: "Дизайнер из Казани, люблю цифровое искусство \nи бейглы. В моей коллекции уже 100+ NFT,\nи еще больше — на моём сайте. Открыт\nк коллаборациям.", nft: [])
-    ]
+    // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setViews()
-        setConstraints()
-        setNavBar()
+        setupViews()
+        setupConstraints()
+        setupNavBar()
+        observeChanges()
     }
     
-    private func setViews() {
+    // MARK: - Setup Methods
+    
+    private func setupViews() {
         view.backgroundColor = .systemBackground
         view.addSubview(ratingCollectionView)
     }
     
-    private func setConstraints() {
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
             ratingCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             ratingCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
@@ -52,13 +55,44 @@ final class StatisticsViewController: UIViewController {
         ])
     }
     
-    private func setNavBar() {
-        let custom = UIBarButtonItem(customView: sortButton)
-        navigationItem.rightBarButtonItem = custom
+    private func setupNavBar() {
+        let customBarButton = UIBarButtonItem(customView: sortButton)
+        navigationItem.rightBarButtonItem = customBarButton
         navigationItem.backButtonTitle = ""
         navigationController?.navigationBar.tintColor = .black
     }
+    
+    // MARK: - Notification Handling
+    
+    private func observeChanges() {
+        ProgressHUD.show()
+        observer = NotificationCenter.default.addObserver(
+            forName: StatisticService.didChangeNotification,
+            object: nil,
+            queue: .main) { [weak self] _ in
+                self?.updateCollectionView()
+            }
+        statisticService.fetchNextPage()
+    }
+    
+    // MARK: - Data Handling
+    
+    private func updateCollectionView() {
+        let oldCount = objects.count
+        let newCount = statisticService.users.count
+        objects = statisticService.users
+        
+        if oldCount != newCount {
+            ratingCollectionView.performBatchUpdates {
+                let indexPaths = (oldCount..<newCount).map { IndexPath(row: $0, section: 0) }
+                ratingCollectionView.insertItems(at: indexPaths)
+            }
+        }
+        ProgressHUD.dismiss()
+    }
 }
+
+// MARK: - Extensions
 
 extension StatisticsViewController: UICollectionViewDataSource {
     
@@ -71,7 +105,7 @@ extension StatisticsViewController: UICollectionViewDataSource {
             return UICollectionViewCell()
         }
         let person = objects[indexPath.row]
-        cell.configure(with: person)
+        cell.configure(indexPath: indexPath, person: person)
         return cell
     }
 }
@@ -90,8 +124,8 @@ extension StatisticsViewController: UICollectionViewDelegateFlowLayout {
 extension StatisticsViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let object = objects[indexPath.row]
-        let profileVC = ProfileInfoView(object: object)
+        let person = objects[indexPath.row]
+        let profileVC = ProfileInfoView(object: person)
         profileVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(profileVC, animated: true)
     }

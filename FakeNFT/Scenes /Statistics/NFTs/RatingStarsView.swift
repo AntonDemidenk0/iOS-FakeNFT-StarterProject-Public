@@ -2,9 +2,13 @@ import UIKit
 
 final class RatingStarsView: UIStackView {
     
+    // MARK: - Properties
+    
     var rating: Int = 0 {
         didSet { updateRating() }
     }
+    
+    // MARK: - Initializers
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -12,22 +16,30 @@ final class RatingStarsView: UIStackView {
     }
     
     required init(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        preconditionFailure("init(coder:) has not been implemented")
     }
+    
+    // MARK: - Private Methods
     
     private func setupView() {
         spacing = 2
         distribution = .fillEqually
-        (1...5).forEach { _ in
-            let starImageView = UIImageView(image: UIImage(named: "emptyStar"))
-            starImageView.contentMode = .scaleAspectFit
-            addArrangedSubview(starImageView)
+        
+        for _ in 1...5 {
+            addArrangedSubview(createStarImageView())
         }
     }
     
     private func updateRating() {
         for (index, subview) in arrangedSubviews.enumerated() {
-            (subview as? UIImageView)?.image = UIImage(named: index < rating ? "filledStar" : "emptyStar")
+            guard let starImageView = subview as? UIImageView else { continue }
+            starImageView.image = UIImage(named: index < rating ? "filledStar" : "emptyStar")
         }
+    }
+    
+    private func createStarImageView() -> UIImageView {
+        let starImageView = UIImageView(image: UIImage(named: "emptyStar"))
+        starImageView.contentMode = .scaleAspectFit
+        return starImageView
     }
 }

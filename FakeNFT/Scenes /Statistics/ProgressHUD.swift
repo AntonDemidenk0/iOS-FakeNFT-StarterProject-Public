@@ -1,7 +1,7 @@
 import UIKit
 import ProgressHUD
 
-class ProgressHUD {
+class UIProgressHUD {
     
     // MARK: - Properties
     
