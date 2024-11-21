@@ -2,51 +2,61 @@ import UIKit
 import WebKit
 
 final class WebViewController: UIViewController {
+
+    // MARK: - Properties
     
-    private var url: String
-    private var progressView = UIProgressView(progressViewStyle: .default)
-    
-    private let webView: WKWebView = {
-        let webView = WKWebView()
-        webView.translatesAutoresizingMaskIntoConstraints = false
-        return webView
-    }()
+    private let urlString: String
+    private lazy var progressView: UIProgressView = createProgressView()
+    private lazy var webView: WKWebView = createWebView()
+
+    // MARK: - Initializer
     
     init(url: String) {
-        self.url = url
+        self.urlString = url
         super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        preconditionFailure("init(coder:) must be implemented")
     }
+    
+    // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
-        setupProgressView()
         loadWebContent()
         setupConstraints()
     }
+    
+    // MARK: - Private Methods
     
     private func setupViews() {
         view.addSubview(webView)
         view.addSubview(progressView)
     }
-    
-    private func setupProgressView() {
+
+    private func createWebView() -> WKWebView {
+        let webView = WKWebView()
+        webView.translatesAutoresizingMaskIntoConstraints = false
+        webView.navigationDelegate = self
+        return webView
+    }
+
+    private func createProgressView() -> UIProgressView {
+        let progressView = UIProgressView(progressViewStyle: .default)
         progressView.translatesAutoresizingMaskIntoConstraints = false
         progressView.tintColor = .black
+        progressView.isHidden = true
+        return progressView
     }
     
     private func loadWebContent() {
-        if let validURL = URL(string: url) {
-            webView.navigationDelegate = self
-            webView.load(URLRequest(url: validURL))
-            webView.isUserInteractionEnabled = true
-        } else {
-            print("Invalid URL string: \(url)")
+        guard let url = URL(string: urlString) else {
+            print("Invalid URL string: \(urlString)")
+            return
         }
+        webView.load(URLRequest(url: url))
     }
     
     private func setupConstraints() {
@@ -64,6 +74,8 @@ final class WebViewController: UIViewController {
     }
 }
 
+// MARK: - WKNavigationDelegate
+
 extension WebViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
         progressView.isHidden = false
@@ -74,10 +86,16 @@ extension WebViewController: WKNavigationDelegate {
         progressView.setProgress(1.0, animated: true)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             self.progressView.isHidden = true
+            self.progressView.setProgress(0, animated: false)
         }
     }
     
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        print("WebView failed to load with error: \(error.localizedDescription)")
         progressView.setProgress(1.0, animated: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.progressView.isHidden = true
+            self.progressView.setProgress(0, animated: false)
+        }
     }
 }
