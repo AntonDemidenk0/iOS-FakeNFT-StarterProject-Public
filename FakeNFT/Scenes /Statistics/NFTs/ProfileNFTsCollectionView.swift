@@ -5,7 +5,7 @@ final class ProfileNFTsCollectionView: UIViewController {
     
     // MARK: - Properties
     
-    var nftsIDs: [String] = []
+    private var nftsIDs: [String] = []
     private var visibleNFT: [NFTModel] = []
     private var profile: ProfileModel?
     
@@ -22,7 +22,6 @@ final class ProfileNFTsCollectionView: UIViewController {
     private lazy var nftCollection: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let collection = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collection.translatesAutoresizingMaskIntoConstraints = false
         collection.dataSource = self
         collection.delegate = self
         collection.register(ProfileNFTCollectionCell.self, forCellWithReuseIdentifier: ProfileNFTCollectionCell.identifier)
@@ -31,7 +30,6 @@ final class ProfileNFTsCollectionView: UIViewController {
     
     private lazy var emptyCollectionLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 17, weight: .bold)
         label.text = "У пользователя еще нет NFT"
         label.textAlignment = .center
@@ -68,6 +66,9 @@ final class ProfileNFTsCollectionView: UIViewController {
     }
     
     private func setupConstraints() {
+        [nftCollection, emptyCollectionLabel].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+        }
         NSLayoutConstraint.activate([
             nftCollection.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             nftCollection.bottomAnchor.constraint(equalTo: view.bottomAnchor),
@@ -83,12 +84,16 @@ final class ProfileNFTsCollectionView: UIViewController {
     
     private func fetchNFTs() {
         ProgressHUD.show()
-        service.nftsIDs = nftsIDs
-        service.getNFT { [weak self] in
-            guard let self = self else { return }
-            self.visibleNFT = self.service.visibleNFT
-            self.updateView()
+        service.getNFT(with: nftsIDs) { [weak self] result in
             ProgressHUD.dismiss()
+            guard let self else { return }
+            switch result {
+            case .success(let models):
+                self.visibleNFT = models
+                self.updateView()
+            case .failure(let error):
+                print(error)
+            }
         }
     }
     

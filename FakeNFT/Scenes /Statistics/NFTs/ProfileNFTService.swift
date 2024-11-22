@@ -9,15 +9,15 @@ final class ProfileNFTService {
     
     // MARK: - Properties
     
-    var nftsIDs: [String] = []
-    var visibleNFT: [NFTModel] = []
+    private var nftsIDs: [String] = []
+    private var visibleNFT: [NFTModel] = []
     
     // MARK: - Public Methods
     
-    func getNFT(completion: @escaping () -> Void) {
+    func getNFT(with nftsIDs: [String], completion: @escaping (Result<[NFTModel], Error>) -> Void) {
         guard !nftsIDs.isEmpty else {
             print("No NFT IDs to fetch.")
-            completion()
+            completion(.success([]))
             return
         }
         
@@ -44,9 +44,10 @@ final class ProfileNFTService {
         
         dispatchGroup.notify(queue: .main) {
             print("All NFT fetch operations completed. Total NFTs: \(self.visibleNFT.count)")
-            completion()
+            completion(.success(self.visibleNFT)) // Завершаем с результатом
         }
     }
+    
     
     func getProfile(completion: @escaping (Result<ProfileModel, Error>) -> Void) {
         guard let url = URL(string: "\(NetworkConstants.baseURL)/api/v1/profile/1") else {

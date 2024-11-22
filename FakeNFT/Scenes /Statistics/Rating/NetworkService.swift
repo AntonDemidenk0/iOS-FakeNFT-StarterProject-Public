@@ -2,7 +2,6 @@ import UIKit
 
 final class StatisticService {
     
-    static let didChangeNotification = Notification.Name("StatisticServiceDidChange")
     static let shared = StatisticService()
     
     private init() {}
@@ -12,14 +11,14 @@ final class StatisticService {
     
     // MARK: - Public Methods
     
-    func fetchNextPage() {
+    func fetchNextPage(completion: @escaping (Result<[Person], Error>) -> Void) {
         guard let url = buildURL(forPage: lastLoadedPage) else {
-            print("Invalid URL")
+            completion(.failure(URLError(.badURL)))
             return
         }
         
         let request = buildRequest(withURL: url)
-        fetchData(from: request)
+        fetchData(from: request, completion: completion)
     }
     
     // MARK: - Private Methods
@@ -36,35 +35,36 @@ final class StatisticService {
         return request
     }
     
-    private func fetchData(from request: URLRequest) {
+    private func fetchData(from request: URLRequest, completion: @escaping (Result<[Person], Error>) -> Void) {
         let task = URLSession.shared.dataTask(with: request) { [weak self] data, _, error in
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 
                 if let error = error {
-                    print("Request failed with error: \(error.localizedDescription)")
+                    completion(.failure(error))
                     return
                 }
                 
                 guard let data = data else {
-                    print("No data received")
+                    completion(.failure(URLError(.badServerResponse)))
                     return
                 }
                 
-                self.handleResponse(data)
+                self.handleResponse(data, completion: completion)
             }
         }
         task.resume()
     }
     
-    private func handleResponse(_ data: Data) {
+    private func handleResponse(_ data: Data, completion: @escaping (Result<[Person], Error>) -> Void) {
         do {
             let users = try JSONDecoder().decode([Person].self, from: data)
-            self.users.append(contentsOf: users.sorted { $0.nfts.count > $1.nfts.count })
+            let sortedUsers = users.sorted { $0.nfts.count > $1.nfts.count }
+            self.users.append(contentsOf: sortedUsers)
             lastLoadedPage += 1
-            NotificationCenter.default.post(name: StatisticService.didChangeNotification, object: self)
+            completion(.success(sortedUsers))
         } catch {
-            print("Failed to decode response: \(error.localizedDescription)")
+            completion(.failure(error))
         }
     }
 }

@@ -6,14 +6,12 @@ final class StatisticsViewController: UIViewController {
     // MARK: - Properties
     
     private let statisticService = StatisticService.shared
-    private var observer: NSObjectProtocol?
     private var isLoadingData = false
-    private var objects: [Person] = []
+    private var persons: [Person] = []
     
     private lazy var ratingCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let collection = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collection.translatesAutoresizingMaskIntoConstraints = false
         collection.register(RatingCell.self, forCellWithReuseIdentifier: RatingCell.identifier)
         collection.dataSource = self
         collection.delegate = self
@@ -23,7 +21,6 @@ final class StatisticsViewController: UIViewController {
     
     private lazy var sortButton: UIButton = {
         let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
         button.tintColor = .black
         button.setImage(UIImage(named: "sort"), for: .normal)
         return button
@@ -36,7 +33,7 @@ final class StatisticsViewController: UIViewController {
         setupViews()
         setupConstraints()
         setupNavBar()
-        observeChanges()
+        loadData()
     }
     
     // MARK: - Setup Methods
@@ -47,6 +44,9 @@ final class StatisticsViewController: UIViewController {
     }
     
     private func setupConstraints() {
+        [ratingCollectionView, sortButton].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+        }
         NSLayoutConstraint.activate([
             ratingCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             ratingCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
@@ -62,33 +62,47 @@ final class StatisticsViewController: UIViewController {
         navigationController?.navigationBar.tintColor = .black
     }
     
-    // MARK: - Notification Handling
-    
-    private func observeChanges() {
-        ProgressHUD.show()
-        observer = NotificationCenter.default.addObserver(
-            forName: StatisticService.didChangeNotification,
-            object: nil,
-            queue: .main) { [weak self] _ in
-                self?.updateCollectionView()
-            }
-        statisticService.fetchNextPage()
-    }
-    
     // MARK: - Data Handling
     
-    private func updateCollectionView() {
-        let oldCount = objects.count
-        let newCount = statisticService.users.count
-        objects = statisticService.users
+    private func loadData() {
+        guard !isLoadingData else { return }
+        isLoadingData = true
+        ProgressHUD.show()
         
-        if oldCount != newCount {
+        statisticService.fetchNextPage { [weak self] result in
+            guard let self = self else { return }
+            self.isLoadingData = false
+            ProgressHUD.dismiss()
+            
+            switch result {
+            case .success(let newUsers):
+                self.updateCollectionView(with: newUsers)
+            case .failure(let error):
+                self.showErrorAlert(error: error)
+            }
+        }
+    }
+    
+    private func updateCollectionView(with newUsers: [Person]) {
+        let oldCount = persons.count
+        persons.append(contentsOf: newUsers)
+        
+        if !newUsers.isEmpty {
             ratingCollectionView.performBatchUpdates {
-                let indexPaths = (oldCount..<newCount).map { IndexPath(row: $0, section: 0) }
+                let indexPaths = (oldCount..<persons.count).map { IndexPath(row: $0, section: 0) }
                 ratingCollectionView.insertItems(at: indexPaths)
             }
         }
-        ProgressHUD.dismiss()
+    }
+    
+    private func showErrorAlert(error: Error) {
+        let alert = UIAlertController(
+            title: "Ошибка",
+            message: error.localizedDescription,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "ОК", style: .default))
+        present(alert, animated: true)
     }
 }
 
@@ -97,14 +111,14 @@ final class StatisticsViewController: UIViewController {
 extension StatisticsViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return objects.count
+        return persons.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RatingCell.identifier, for: indexPath) as? RatingCell else {
             return UICollectionViewCell()
         }
-        let person = objects[indexPath.row]
+        let person = persons[indexPath.row]
         cell.configure(indexPath: indexPath, person: person)
         return cell
     }
@@ -124,8 +138,8 @@ extension StatisticsViewController: UICollectionViewDelegateFlowLayout {
 extension StatisticsViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let person = objects[indexPath.row]
-        let profileVC = ProfileInfoView(object: person)
+        let person = persons[indexPath.row]
+        let profileVC = ProfileInfoView(person: person)
         profileVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(profileVC, animated: true)
     }

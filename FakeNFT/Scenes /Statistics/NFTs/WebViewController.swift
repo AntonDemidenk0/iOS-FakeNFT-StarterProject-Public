@@ -2,13 +2,13 @@ import UIKit
 import WebKit
 
 final class WebViewController: UIViewController {
-
+    
     // MARK: - Properties
     
     private let urlString: String
     private lazy var progressView: UIProgressView = createProgressView()
     private lazy var webView: WKWebView = createWebView()
-
+    
     // MARK: - Initializer
     
     init(url: String) {
@@ -35,17 +35,15 @@ final class WebViewController: UIViewController {
         view.addSubview(webView)
         view.addSubview(progressView)
     }
-
+    
     private func createWebView() -> WKWebView {
         let webView = WKWebView()
-        webView.translatesAutoresizingMaskIntoConstraints = false
         webView.navigationDelegate = self
         return webView
     }
-
+    
     private func createProgressView() -> UIProgressView {
         let progressView = UIProgressView(progressViewStyle: .default)
-        progressView.translatesAutoresizingMaskIntoConstraints = false
         progressView.tintColor = .black
         progressView.isHidden = true
         return progressView
@@ -60,6 +58,9 @@ final class WebViewController: UIViewController {
     }
     
     private func setupConstraints() {
+        [webView, progressView].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+        }
         NSLayoutConstraint.activate([
             webView.topAnchor.constraint(equalTo: view.topAnchor),
             webView.bottomAnchor.constraint(equalTo: view.bottomAnchor),

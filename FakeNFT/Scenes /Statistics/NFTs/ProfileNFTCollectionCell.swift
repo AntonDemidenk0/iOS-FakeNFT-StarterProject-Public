@@ -9,7 +9,6 @@ final class ProfileNFTCollectionCell: UICollectionViewCell {
     
     private lazy var nftImage: UIImageView = {
         let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.layer.cornerRadius = 12
         imageView.clipsToBounds = true
         imageView.isUserInteractionEnabled = true
@@ -21,13 +20,11 @@ final class ProfileNFTCollectionCell: UICollectionViewCell {
     
     private let ratingStarsView: RatingStarsView = {
         let view = RatingStarsView()
-        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private lazy var likeButton: UIButton = {
         let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(named: "emptyHeart"), for: .normal)
         button.addTarget(self, action: #selector(likeButtonTapped), for: .touchUpInside)
         return button
@@ -35,8 +32,8 @@ final class ProfileNFTCollectionCell: UICollectionViewCell {
     
     private lazy var addToCartButton: UIButton = {
         let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(named: "cart"), for: .normal)
+        button.setImage(UIImage(named: "addToCart"), for: .normal)
+        button.addTarget(self, action: #selector(addToCartButtonTapped), for: .touchUpInside)
         return button
     }()
     
@@ -60,44 +57,46 @@ final class ProfileNFTCollectionCell: UICollectionViewCell {
     }
     
     private func setupConstraints() {
-            NSLayoutConstraint.activate([
-                nftImage.topAnchor.constraint(equalTo: contentView.topAnchor),
-                nftImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-                nftImage.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-                nftImage.heightAnchor.constraint(equalToConstant: (contentView.bounds.height / 5) * 3 ),
-                
-                likeButton.topAnchor.constraint(equalTo: nftImage.topAnchor),
-                likeButton.trailingAnchor.constraint(equalTo: nftImage.trailingAnchor),
-                likeButton.heightAnchor.constraint(equalToConstant: 40),
-                likeButton.widthAnchor.constraint(equalToConstant: 40),
-                
-                ratingStarsView.topAnchor.constraint(equalTo: nftImage.bottomAnchor, constant: 8),
-                ratingStarsView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-                ratingStarsView.heightAnchor.constraint(equalToConstant: 12),
-                
-                nameLabel.topAnchor.constraint(equalTo: ratingStarsView.bottomAnchor, constant: 4),
-                nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-                nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-                
-                priceLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
-                priceLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-                priceLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-                
-                addToCartButton.heightAnchor.constraint(equalToConstant: 40),
-                addToCartButton.widthAnchor.constraint(equalToConstant: 40),
-                addToCartButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-                addToCartButton.topAnchor.constraint(equalTo: ratingStarsView.bottomAnchor, constant: 4)
-            ])
+        [nftImage, nameLabel, priceLabel, ratingStarsView, addToCartButton, likeButton].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
         }
+        NSLayoutConstraint.activate([
+            nftImage.topAnchor.constraint(equalTo: contentView.topAnchor),
+            nftImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            nftImage.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            nftImage.heightAnchor.constraint(equalToConstant: (contentView.bounds.height / 5) * 3 ),
+            
+            likeButton.topAnchor.constraint(equalTo: nftImage.topAnchor),
+            likeButton.trailingAnchor.constraint(equalTo: nftImage.trailingAnchor),
+            likeButton.heightAnchor.constraint(equalToConstant: 40),
+            likeButton.widthAnchor.constraint(equalToConstant: 40),
+            
+            ratingStarsView.topAnchor.constraint(equalTo: nftImage.bottomAnchor, constant: 8),
+            ratingStarsView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            ratingStarsView.heightAnchor.constraint(equalToConstant: 12),
+            
+            nameLabel.topAnchor.constraint(equalTo: ratingStarsView.bottomAnchor, constant: 4),
+            nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            
+            priceLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
+            priceLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            priceLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            
+            addToCartButton.heightAnchor.constraint(equalToConstant: 40),
+            addToCartButton.widthAnchor.constraint(equalToConstant: 40),
+            addToCartButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            addToCartButton.topAnchor.constraint(equalTo: ratingStarsView.bottomAnchor, constant: 4)
+        ])
+    }
     
     // MARK: - Configure
     
     func configure(with nft: NFTModel) {
         nftImage.kf.indicatorType = .activity
-        if let url = URL(string: nft.images.first ?? "") {
-            nftImage.kf.setImage(with: url) { [weak self] _ in
-                self?.nftImage.kf.indicatorType = .none
-            }
+        guard let url = URL(string: nft.images.first ?? "") else { return }
+        nftImage.kf.setImage(with: url) { [weak self] _ in
+            self?.nftImage.kf.indicatorType = .none
         }
         
         nameLabel.text = ProfileNFTCollectionCell.limitedText(nft.name, limit: 9)
@@ -111,6 +110,12 @@ final class ProfileNFTCollectionCell: UICollectionViewCell {
         let isLiked = likeButton.image(for: .normal) == UIImage(named: "filledHeart")
         let newImageName = isLiked ? "emptyHeart" : "filledHeart"
         likeButton.setImage(UIImage(named: newImageName), for: .normal)
+    }
+    
+    @objc private func addToCartButtonTapped() {
+        let isBuyed = addToCartButton.image(for: .normal) == UIImage(named: "addToCart")
+        let newImageName = isBuyed ? "deleteFromCart" : "addToCart"
+        addToCartButton.setImage(UIImage(named: newImageName), for: .normal)
     }
     
     // MARK: - Helpers

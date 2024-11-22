@@ -9,36 +9,33 @@ final class RatingCell: UICollectionViewCell {
     
     private let ratingLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 15, weight: .regular)
         return label
     }()
     
     private let avatarImage: UIImageView = {
         let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.layer.cornerRadius = 14
         imageView.clipsToBounds = true
+        imageView.backgroundColor = .lightGray  // Устанавливаем цвет фона для проверки
         return imageView
     }()
     
+    
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 22, weight: .bold)
         return label
     }()
     
     private let nftCountLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 22, weight: .bold)
         return label
     }()
     
     private let cellView: UIView = {
         let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = 12
         view.backgroundColor = .segmentInactive
         return view
@@ -60,7 +57,15 @@ final class RatingCell: UICollectionViewCell {
     
     func configure(indexPath: IndexPath, person: Person) {
         ratingLabel.text = "\(indexPath.row + 1)"
-        avatarImage.kf.setImage(with: URL(string: person.avatar))
+        
+        avatarImage.image = UIImage(named: "userpick")
+        
+        if !person.avatar.isEmpty, !person.avatar.hasPrefix("https://cloudflare-ipfs.com/ipfs"), !person.avatar.hasPrefix("https://photo.bank") {
+            if let avatarURL = URL(string: person.avatar) {
+                avatarImage.kf.setImage(with: avatarURL)
+            }
+        }
+        
         nameLabel.text = person.name.limited(to: 16)
         nftCountLabel.text = "\(person.nfts.count)"
     }
@@ -74,6 +79,9 @@ final class RatingCell: UICollectionViewCell {
     }
     
     private func setupConstraints() {
+        [ratingLabel, cellView, avatarImage, nameLabel, nftCountLabel].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+        }
         NSLayoutConstraint.activate([
             ratingLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             ratingLabel.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 16),
