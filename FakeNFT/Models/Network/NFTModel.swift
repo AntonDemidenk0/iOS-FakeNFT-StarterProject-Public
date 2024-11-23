@@ -1,9 +1,10 @@
-import Foundation
+import UIKit
 
-struct Nft: Decodable {
+struct NFTModel: Codable {
+    
     let createdAt: String
     let name: String
-    let images: [URL]
+    let images: [String]
     let rating: Int
     let description: String
     let price: Double
