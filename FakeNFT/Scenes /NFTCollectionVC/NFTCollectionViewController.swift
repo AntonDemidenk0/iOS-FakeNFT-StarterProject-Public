@@ -2,6 +2,10 @@
 import UIKit
 import ProgressHUD
 
+protocol NFTCollectionViewCellDelegate: AnyObject {
+    func nftCollectionViewCellDidToggleCart(_ cell: NFTCollectionViewCell)
+}
+
 final class NFTCollectionViewController: UIViewController, ErrorView {
     
     // MARK: - Properties
@@ -10,6 +14,9 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
     private let servicesAssembly: ServicesAssembly
     private var nfts: [Nft] = []
     private var images: [String: UIImage] = [:]
+    
+    private var order: Order?
+
     
     // MARK: - UI Elements
     
@@ -115,6 +122,7 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
         configureView()
         configureCover()
         fetchNFTs()
+        fetchOrder()
         setupCustomBackButton()
     }
     
@@ -337,7 +345,6 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
         }
     }
 
-    
     private func updateCollectionViewHeight() {
         guard let layout = nftCollectionView.collectionViewLayout as? UICollectionViewFlowLayout else {
             return
@@ -356,6 +363,27 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
         view.layoutIfNeeded()
     }
     
+    private func fetchOrder() {
+        servicesAssembly.nftService.fetchOrder { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let order):
+                    self?.order = order
+                    self?.nftCollectionView.reloadData()
+                case .failure(let error):
+                    print("Failed to fetch order: \(error)")
+                    self?.showError(ErrorModel(
+                        message: NSLocalizedString("Failed to load cart. Please try again.", comment: ""),
+                        actionText: NSLocalizedString("Retry", comment: ""),
+                        action: { [weak self] in
+                            self?.fetchOrder()
+                        }
+                    ))
+                }
+            }
+        }
+    }
+
     @objc
     private func customBackButtonTapped() {
         navigationController?.popViewController(animated: true)
@@ -398,11 +426,53 @@ extension NFTCollectionViewController: UICollectionViewDelegate, UICollectionVie
         ) as? NFTCollectionViewCell else {
             fatalError("Could not dequeue NFTCollectionViewCell")
         }
-        
+
         let nft = nfts[indexPath.item]
         let image = images[nft.id]
         cell.configure(with: nft, image: image)
+
+        // Проверяем, находится ли NFT в корзине
+        let isInCart = order?.nfts.contains(nft.id) ?? false
+        cell.setCartState(isInCart)
+
+        cell.delegate = self
         return cell
+    }
+
+}
+
+extension NFTCollectionViewController {
+    
+    private func toggleCart(for nft: Nft) {
+        guard var order = self.order else { return }
+
+        if let index = order.nfts.firstIndex(of: nft.id) {
+            order.nfts.remove(at: index)
+        } else {
+            order.nfts.append(nft.id)
+        }
+        print("Updated order: \(order)")
+        servicesAssembly.nftService.updateOrder(order) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let updatedOrder):
+                    self?.order = updatedOrder
+                    print("Order successfully updated")
+                    if let index = self?.nfts.firstIndex(where: { $0.id == nft.id }) {
+                        self?.nftCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+                    }
+                case .failure(let error):
+                    print("Failed to update order: \(error)")
+                }
+            }
+        }
     }
 }
 
+extension NFTCollectionViewController: NFTCollectionViewCellDelegate {
+    func nftCollectionViewCellDidToggleCart(_ cell: NFTCollectionViewCell) {
+        guard let indexPath = nftCollectionView.indexPath(for: cell) else { return }
+        let nft = nfts[indexPath.item]
+        toggleCart(for: nft)
+    }
+}

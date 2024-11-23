@@ -5,6 +5,7 @@ import UIKit
 final class NFTCollectionViewCell: UICollectionViewCell, LoadingView {
     // MARK: - Static Properties
     static let identifier = "NFTCollectionViewCell"
+    weak var delegate: NFTCollectionViewCellDelegate?
     
     // MARK: - Properties
      private var isInCart = false {
@@ -18,6 +19,11 @@ final class NFTCollectionViewCell: UICollectionViewCell, LoadingView {
             updateFavoriteButtonState()
         }
     }
+    
+    func setCartState(_ inCart: Bool) {
+        isInCart = inCart
+    }
+
     
     // MARK: - UI Elements
     
@@ -183,6 +189,7 @@ final class NFTCollectionViewCell: UICollectionViewCell, LoadingView {
     // MARK: - Button Actions
     @objc private func cartButtonTapped() {
         isInCart.toggle()
+        delegate?.nftCollectionViewCellDidToggleCart(self)
     }
 
     @objc private func favoriteButtonTapped() {
