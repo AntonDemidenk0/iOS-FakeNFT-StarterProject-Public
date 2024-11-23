@@ -24,7 +24,6 @@ final class NFTCollectionViewCell: UICollectionViewCell, LoadingView {
         isInCart = inCart
     }
 
-    
     // MARK: - UI Elements
     
     let activityIndicator: UIActivityIndicatorView = {
@@ -187,20 +186,27 @@ final class NFTCollectionViewCell: UICollectionViewCell, LoadingView {
 
     
     // MARK: - Button Actions
-    @objc private func cartButtonTapped() {
+    @objc
+    private func cartButtonTapped() {
         isInCart.toggle()
         delegate?.nftCollectionViewCellDidToggleCart(self)
     }
 
-    @objc private func favoriteButtonTapped() {
+    @objc
+    private func favoriteButtonTapped() {
         isFavorite.toggle()
+        delegate?.nftCollectionViewCellDidToggleFavorite(self)
     }
 
     // MARK: - Configure Cell
+    
+    func setFavoriteState(_ isFavorite: Bool) {
+        self.isFavorite = isFavorite
+    }
+
     func configure(with nft: Nft, image: UIImage?) {
         let firstWord = nft.name.split(separator: " ").first.map(String.init) ?? nft.name
         nameLabel.text = firstWord
-
         priceLabel.text = nft.price > 0 ? "\(nft.price) ETH" : "Loading..."
         
         if let image = image {
