@@ -11,7 +11,7 @@ final class TabBarController: UITabBarController {
         let catalogNavigationController = UINavigationController(rootViewController: catalogController)
         catalogNavigationController.tabBarItem = UITabBarItem(
             title: NSLocalizedString("Tab.catalog", comment: ""),
-            image: UIImage(systemName: "square.stack.3d.up.fill"),
+            image: UIImage(systemName: "person.crop.rectangle.stack.fill"),
             tag: 0
         )
 
