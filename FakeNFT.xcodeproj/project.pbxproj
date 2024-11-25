@@ -23,6 +23,8 @@
 		0CFCB7492A7808900009A829 /* TestCatalogController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CFCB7482A7808900009A829 /* TestCatalogController.swift */; };
 		0CFCB74B2A780EA80009A829 /* UIView+Constraints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CFCB74A2A780EA80009A829 /* UIView+Constraints.swift */; };
 		0CFCB74E2A7817DC0009A829 /* NftStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CFCB74D2A7817DC0009A829 /* NftStorage.swift */; };
+		1C249FD82CF4541C000D929D /* PaymentServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C249FD72CF4541B000D929D /* PaymentServiceTests.swift */; };
+		1C249FDA2CF45434000D929D /* NetworkClientMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C249FD92CF45433000D929D /* NetworkClientMock.swift */; };
 		1C89CB8A2CE4B6D3001AAE15 /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C89CB892CE4B6CB001AAE15 /* WebViewController.swift */; };
 		1C89CB8C2CE4BEEC001AAE15 /* SuccessPaymentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C89CB8B2CE4BEEB001AAE15 /* SuccessPaymentViewController.swift */; };
 		1CB2FB8B2CE1D4480046B7F4 /* CartViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CB2FB8A2CE1D4400046B7F4 /* CartViewController.swift */; };
@@ -93,6 +95,8 @@
 		0CFCB7482A7808900009A829 /* TestCatalogController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCatalogController.swift; sourceTree = "<group>"; };
 		0CFCB74A2A780EA80009A829 /* UIView+Constraints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Constraints.swift"; sourceTree = "<group>"; };
 		0CFCB74D2A7817DC0009A829 /* NftStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftStorage.swift; sourceTree = "<group>"; };
+		1C249FD72CF4541B000D929D /* PaymentServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentServiceTests.swift; sourceTree = "<group>"; };
+		1C249FD92CF45433000D929D /* NetworkClientMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkClientMock.swift; sourceTree = "<group>"; };
 		1C89CB892CE4B6CB001AAE15 /* WebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
 		1C89CB8B2CE4BEEB001AAE15 /* SuccessPaymentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuccessPaymentViewController.swift; sourceTree = "<group>"; };
 		1CB2FB8A2CE1D4400046B7F4 /* CartViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartViewController.swift; sourceTree = "<group>"; };
@@ -214,6 +218,15 @@
 			path = MemoryStorage;
 			sourceTree = "<group>";
 		};
+		1C249FD62CF4529E000D929D /* Cart */ = {
+			isa = PBXGroup;
+			children = (
+				1C249FD92CF45433000D929D /* NetworkClientMock.swift */,
+				1C249FD72CF4541B000D929D /* PaymentServiceTests.swift */,
+			);
+			path = Cart;
+			sourceTree = "<group>";
+		};
 		1CB2FB892CE1D3E40046B7F4 /* Cart */ = {
 			isa = PBXGroup;
 			children = (
@@ -288,6 +301,7 @@
 		3F6806AC29CBBAF200B4F915 /* FakeNFTTests */ = {
 			isa = PBXGroup;
 			children = (
+				1C249FD62CF4529E000D929D /* Cart */,
 				3F6806AD29CBBAF200B4F915 /* ExampleUnitTests.swift */,
 			);
 			path = FakeNFTTests;
@@ -600,6 +614,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1C249FDA2CF45434000D929D /* NetworkClientMock.swift in Sources */,
+				1C249FD82CF4541C000D929D /* PaymentServiceTests.swift in Sources */,
 				3F6806AE29CBBAF200B4F915 /* ExampleUnitTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
