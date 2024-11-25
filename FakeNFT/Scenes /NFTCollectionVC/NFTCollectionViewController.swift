@@ -2,6 +2,11 @@
 import UIKit
 import ProgressHUD
 
+protocol NFTCollectionViewCellDelegate: AnyObject {
+    func nftCollectionViewCellDidToggleCart(_ cell: NFTCollectionViewCell)
+    func nftCollectionViewCellDidToggleFavorite(_ cell: NFTCollectionViewCell)
+}
+
 final class NFTCollectionViewController: UIViewController, ErrorView {
     
     // MARK: - Properties
@@ -10,6 +15,9 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
     private let servicesAssembly: ServicesAssembly
     private var nfts: [Nft] = []
     private var images: [String: UIImage] = [:]
+    private var order: Order?
+    private var profile: Profile?
+
     
     // MARK: - UI Elements
     
@@ -102,6 +110,19 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        customizeNavigationBar()
+        setupUI()
+        configureView()
+        configureCover()
+        fetchNFTs()
+        fetchOrder()
+        fetchProfile()
+        setupCustomBackButton()
+    }
+    
+    // MARK: - Setup Methods
+    
+    private func customizeNavigationBar() {
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
         navigationController?.navigationBar.shadowImage = UIImage()
         navigationController?.navigationBar.isTranslucent = true
@@ -110,15 +131,7 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
         edgesForExtendedLayout = [.top, .bottom]
         extendedLayoutIncludesOpaqueBars = true
         setNeedsStatusBarAppearanceUpdate()
-
-        setupUI()
-        configureView()
-        configureCover()
-        fetchNFTs()
-        setupCustomBackButton()
     }
-    
-    // MARK: - Setup Methods
     
     private func setupCustomBackButton() {
         let backButton = UIBarButtonItem(
@@ -136,7 +149,6 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
         let spacing: CGFloat = 16
         let totalSpacing = (2 * 16) + ((numberOfItemsPerRow - 1) * spacing)
         let collectionViewWidth = view.bounds.width
-
         let itemWidth = (collectionViewWidth - totalSpacing) / numberOfItemsPerRow
         let itemHeight = itemWidth * 1.78
 
@@ -149,22 +161,28 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
     
     private func setupUI() {
         view.backgroundColor = .systemBackground
-        
-        // Добавляем scrollView
+        addSubviews()
+        addConstraints()
+        addTapGestureToAuthorLabel()
+    }
+    
+    private func addSubviews() {
         view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        contentView.addSubview(coverImageView)
+        contentView.addSubview(stackView)
+        contentView.addSubview(nftCollectionView)
+    }
+    
+    private func addConstraints() {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.contentInsetAdjustmentBehavior = .never
+        contentView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
-        
-        // Добавляем contentView внутрь scrollView
-        scrollView.addSubview(contentView)
-        contentView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
             contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
@@ -172,25 +190,19 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
         ])
         
-        // Добавляем coverImageView
-        contentView.addSubview(coverImageView)
         NSLayoutConstraint.activate([
-            coverImageView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            coverImageView.topAnchor.constraint(equalTo: view.topAnchor),
             coverImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             coverImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             coverImageView.heightAnchor.constraint(equalToConstant: 310)
         ])
         
-        // Добавляем stackView
-        contentView.addSubview(stackView)
         NSLayoutConstraint.activate([
             stackView.topAnchor.constraint(equalTo: coverImageView.bottomAnchor, constant: 16),
             stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16)
         ])
         
-        // Добавляем nftCollectionView
-        contentView.addSubview(nftCollectionView)
         NSLayoutConstraint.activate([
             nftCollectionView.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 16),
             nftCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -200,8 +212,6 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
         
         nftCollectionViewHeightConstraint = nftCollectionView.heightAnchor.constraint(equalToConstant: 0)
         nftCollectionViewHeightConstraint?.isActive = true
-        
-        addTapGestureToAuthorLabel()
     }
     
     private func addTapGestureToAuthorLabel() {
@@ -337,7 +347,6 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
         }
     }
 
-    
     private func updateCollectionViewHeight() {
         guard let layout = nftCollectionView.collectionViewLayout as? UICollectionViewFlowLayout else {
             return
@@ -354,6 +363,41 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
         
         nftCollectionViewHeightConstraint?.constant = collectionViewHeight
         view.layoutIfNeeded()
+    }
+    
+    private func fetchOrder() {
+        servicesAssembly.nftService.fetchOrder { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let order):
+                    self?.order = order
+                    self?.nftCollectionView.reloadData()
+                case .failure(let error):
+                    print("Failed to fetch order: \(error)")
+                    self?.showError(ErrorModel(
+                        message: NSLocalizedString("Failed to load cart. Please try again.", comment: ""),
+                        actionText: NSLocalizedString("Retry", comment: ""),
+                        action: { [weak self] in
+                            self?.fetchOrder()
+                        }
+                    ))
+                }
+            }
+        }
+    }
+    
+    private func fetchProfile() {
+        servicesAssembly.nftService.fetchProfile { [weak self] (result: Result<Profile, Error>) in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let profile):
+                    self?.profile = profile
+                    self?.nftCollectionView.reloadData()
+                case .failure(let error):
+                    print("Failed to fetch profile: \(error)")
+                }
+            }
+        }
     }
     
     @objc
@@ -398,11 +442,96 @@ extension NFTCollectionViewController: UICollectionViewDelegate, UICollectionVie
         ) as? NFTCollectionViewCell else {
             fatalError("Could not dequeue NFTCollectionViewCell")
         }
-        
+
         let nft = nfts[indexPath.item]
         let image = images[nft.id]
         cell.configure(with: nft, image: image)
+
+        let isInCart = order?.nfts.contains(nft.id) ?? false
+        cell.setCartState(isInCart)
+        
+        let isFavorite = profile?.likes.contains(nft.id) ?? false
+        cell.setFavoriteState(isFavorite)
+
+        cell.delegate = self
         return cell
     }
 }
+
+extension NFTCollectionViewController {
+    
+    private func toggleCart(for nft: Nft) {
+        guard var order = self.order else { return }
+        
+        if let index = order.nfts.firstIndex(of: nft.id) {
+            order.nfts.remove(at: index)
+        } else {
+            order.nfts.append(nft.id)
+        }
+        print("Updated order: \(order)")
+        servicesAssembly.nftService.updateOrder(order) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let updatedOrder):
+                    self?.order = updatedOrder
+                    print("Order successfully updated")
+                    if let index = self?.nfts.firstIndex(where: { $0.id == nft.id }) {
+                        self?.nftCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+                    }
+                case .failure(let error):
+                    print("Failed to update order: \(error)")
+                }
+            }
+        }
+    }
+    
+    private func toggleFavorite(for nft: Nft) {
+        guard var profile = self.profile else {
+            print("Ошибка: профиль отсутствует.")
+            return
+        }
+        
+        print("Лайки до обновления: \(profile.likes)")
+        
+        if let index = profile.likes.firstIndex(of: nft.id) {
+            profile.likes.remove(at: index)
+        } else {
+            profile.likes.append(nft.id)
+        }
+        
+        print("Лайки после обновления: \(profile.likes)")
+        
+        servicesAssembly.nftService.updateProfile(profile) { [weak self] result in
+            print("updateProfile вызван")
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let updatedProfile):
+                    self?.profile = updatedProfile
+                    print("Профиль успешно обновлен: \(updatedProfile.likes)")
+                    if let index = self?.nfts.firstIndex(where: { $0.id == nft.id }) {
+                        self?.nftCollectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+                    }
+                case .failure(let error):
+                    print("Ошибка при обновлении профиля: \(error)")
+                }
+            }
+        }
+    }
+}
+
+extension NFTCollectionViewController: NFTCollectionViewCellDelegate {
+    
+    func nftCollectionViewCellDidToggleCart(_ cell: NFTCollectionViewCell) {
+        guard let indexPath = nftCollectionView.indexPath(for: cell) else { return }
+        let nft = nfts[indexPath.item]
+        toggleCart(for: nft)
+    }
+    
+    func nftCollectionViewCellDidToggleFavorite(_ cell: NFTCollectionViewCell) {
+        guard let indexPath = nftCollectionView.indexPath(for: cell) else { return }
+        let nft = nfts[indexPath.item]
+        toggleFavorite(for: nft)
+    }
+}
+
 

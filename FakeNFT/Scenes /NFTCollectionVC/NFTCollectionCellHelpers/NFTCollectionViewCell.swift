@@ -5,6 +5,7 @@ import UIKit
 final class NFTCollectionViewCell: UICollectionViewCell, LoadingView {
     // MARK: - Static Properties
     static let identifier = "NFTCollectionViewCell"
+    weak var delegate: NFTCollectionViewCellDelegate?
     
     // MARK: - Properties
      private var isInCart = false {
@@ -18,7 +19,7 @@ final class NFTCollectionViewCell: UICollectionViewCell, LoadingView {
             updateFavoriteButtonState()
         }
     }
-    
+
     // MARK: - UI Elements
     
     let activityIndicator: UIActivityIndicatorView = {
@@ -45,7 +46,6 @@ final class NFTCollectionViewCell: UICollectionViewCell, LoadingView {
         return button
     }()
 
-    
     private let nameLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -95,6 +95,7 @@ final class NFTCollectionViewCell: UICollectionViewCell, LoadingView {
     // MARK: - Layout Setup
     
     private func setupLayout() {
+        
         contentView.addSubview(nftImageView)
         contentView.addSubview(activityIndicator)
         contentView.addSubview(favoriteButton)
@@ -114,7 +115,6 @@ final class NFTCollectionViewCell: UICollectionViewCell, LoadingView {
         contentView.addSubview(nameAndCartStack)
 
         NSLayoutConstraint.activate([
-            // NFT Image
             nftImageView.topAnchor.constraint(equalTo: contentView.topAnchor),
             nftImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             nftImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
@@ -123,27 +123,22 @@ final class NFTCollectionViewCell: UICollectionViewCell, LoadingView {
             activityIndicator.centerYAnchor.constraint(equalTo: nftImageView.centerYAnchor),
             activityIndicator.centerXAnchor.constraint(equalTo: nftImageView.centerXAnchor),
 
-            // Favorite Button
             favoriteButton.topAnchor.constraint(equalTo: nftImageView.topAnchor, constant: 12),
             favoriteButton.trailingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: -10),
             favoriteButton.widthAnchor.constraint(equalToConstant: 21),
             favoriteButton.heightAnchor.constraint(equalToConstant: 18),
 
-            // Rating Stack
             ratingStackView.topAnchor.constraint(equalTo: nftImageView.bottomAnchor, constant: 4),
             ratingStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             ratingStackView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor),
 
-            // Name and Cart Stack
             nameAndCartStack.topAnchor.constraint(equalTo: ratingStackView.bottomAnchor, constant: 8),
             nameAndCartStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             nameAndCartStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
 
-            // Name Label (внутри стека)
             nameLabel.leadingAnchor.constraint(equalTo: nameAndPriceStack.leadingAnchor),
             nameLabel.trailingAnchor.constraint(lessThanOrEqualTo: nameAndPriceStack.trailingAnchor),
 
-            // Cart Button
             cartButton.widthAnchor.constraint(equalToConstant: 40),
             cartButton.heightAnchor.constraint(equalToConstant: 40)
         ])
@@ -181,19 +176,31 @@ final class NFTCollectionViewCell: UICollectionViewCell, LoadingView {
 
     
     // MARK: - Button Actions
-    @objc private func cartButtonTapped() {
+    @objc
+    private func cartButtonTapped() {
         isInCart.toggle()
+        delegate?.nftCollectionViewCellDidToggleCart(self)
     }
 
-    @objc private func favoriteButtonTapped() {
+    @objc
+    private func favoriteButtonTapped() {
         isFavorite.toggle()
+        delegate?.nftCollectionViewCellDidToggleFavorite(self)
     }
 
     // MARK: - Configure Cell
+    
+    func setCartState(_ inCart: Bool) {
+        isInCart = inCart
+    }
+    
+    func setFavoriteState(_ isFavorite: Bool) {
+        self.isFavorite = isFavorite
+    }
+
     func configure(with nft: Nft, image: UIImage?) {
         let firstWord = nft.name.split(separator: " ").first.map(String.init) ?? nft.name
         nameLabel.text = firstWord
-
         priceLabel.text = nft.price > 0 ? "\(nft.price) ETH" : "Loading..."
         
         if let image = image {
