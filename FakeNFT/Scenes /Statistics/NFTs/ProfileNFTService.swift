@@ -44,7 +44,7 @@ final class ProfileNFTService {
         
         dispatchGroup.notify(queue: .main) {
             print("All NFT fetch operations completed. Total NFTs: \(self.visibleNFT.count)")
-            completion(.success(self.visibleNFT)) // Завершаем с результатом
+            completion(.success(self.visibleNFT))
         }
     }
     
