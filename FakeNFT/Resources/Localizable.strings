@@ -27,4 +27,5 @@
 "by Rating" = "По рейтингу";
 "by Name" = "По названию";
 "Close" = "Закрыть";
-"noNFTs" = "У вас еще нет NFT";
+"noNFTs" = "У Вас еще нет NFT";
+"noFavoritesNFTs" = "У Вас еще нет избранных NFT";

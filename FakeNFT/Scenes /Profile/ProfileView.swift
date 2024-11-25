@@ -10,6 +10,7 @@ final class ProfileView: UIView {
     
     var websiteLabelTapped: ((String) -> Void)?
     var myNFTTapped: (() -> Void)?
+    var favoritesTapped: (() -> Void)?
     private var nftsCount: Int = 0
     private var likesCount: Int = 0
     
@@ -198,8 +199,9 @@ extension ProfileView: UITableViewDelegate, UITableViewDataSource {
                    myNFTTapped()
                }
            case 1:
-               print("Переход в избранные")
-           case 2:
+            if let favoritesTapped = favoritesTapped {
+                favoritesTapped()
+            }           case 2:
                print("Переход на сайт разработчика")
            default:
                break
