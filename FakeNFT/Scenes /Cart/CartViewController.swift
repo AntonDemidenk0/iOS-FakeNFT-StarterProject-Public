@@ -15,7 +15,8 @@ final class CartViewController: UIViewController, LoadingView, ErrorView {
     internal lazy var activityIndicator = UIActivityIndicatorView()
     
     private let orderId: String
-
+    private var isLoadingCart = false
+    
     private lazy var navigationBar: UINavigationBar = {
         let navBar = UINavigationBar()
         navBar.setBackgroundImage(UIImage(), for: .default)
@@ -111,6 +112,11 @@ final class CartViewController: UIViewController, LoadingView, ErrorView {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         setupUI()
+        loadCartItems()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         loadCartItems()
     }
 
@@ -264,11 +270,13 @@ final class CartViewController: UIViewController, LoadingView, ErrorView {
         guard let tabBarController = self.tabBarController else { return }
         tabBarController.selectedIndex = 0 // Переход на вкладку каталога
     }
-
+    
     private func loadCartItems() {
+        guard !isLoadingCart else { return }
+        isLoadingCart = true
+        
         print("🔄 Загрузка всех товаров...")
         
-        ProgressHUD.animationType = .circleRotateChase
         ProgressHUD.show()
         
         sortButton.isEnabled = false
@@ -277,6 +285,7 @@ final class CartViewController: UIViewController, LoadingView, ErrorView {
 
         cartService.loadCartItems(orderId: orderId) { [weak self] (result: Result<[CartItem], Error>) in
             guard let self = self else { return }
+            self.isLoadingCart = false
             ProgressHUD.dismiss()
             
             switch result {
@@ -304,19 +313,43 @@ final class CartViewController: UIViewController, LoadingView, ErrorView {
     }
 
     private func deleteCartItem(at indexPath: IndexPath) {
+        guard cartItems.indices.contains(indexPath.row) else {
+            print("Ошибка: Попытка удалить несуществующий элемент по индексу \(indexPath.row)")
+            return
+        }
+
         let item = cartItems[indexPath.row]
+        
+        // Показываем индикатор прогресса
+        ProgressHUD.show()
         
         cartService.deleteCartItem(orderId: orderId, itemId: item.id) { [weak self] result in
             guard let self = self else { return }
             
+            // Скрываем индикатор прогресса
+            ProgressHUD.dismiss()
+            
             switch result {
             case .success:
+                // Удаляем товар из массива
                 self.cartItems.remove(at: indexPath.row)
-                self.tableView.deleteRows(at: [indexPath], with: .automatic)
-                self.updateEmptyState()
-                self.updatePaymentInfo()
+                DispatchQueue.main.async {
+                    // Обновляем таблицу
+                    self.tableView.deleteRows(at: [indexPath], with: .automatic)
+                    self.updateEmptyState()
+                    self.updatePaymentInfo()
+                }
             case .failure(let error):
                 print("❌ Ошибка удаления товара: \(error)")
+                // Показываем сообщение об ошибке
+                let errorModel = ErrorModel(
+                    message: "Не удалось удалить товар",
+                    actionText: "Повторить",
+                    action: { [weak self] in
+                        self?.deleteCartItem(at: indexPath)
+                    }
+                )
+                self.showError(errorModel)
             }
         }
     }
@@ -328,12 +361,9 @@ final class CartViewController: UIViewController, LoadingView, ErrorView {
     }
 
     private func updateEmptyState() {
-        if cartItems.isEmpty {
-            emptyStateLabel.text = "Ваша корзина пуста"
-            emptyStateLabel.isHidden = false
-        } else {
-            emptyStateLabel.isHidden = true
-        }
+        let isEmpty = cartItems.isEmpty
+        emptyStateLabel.isHidden = !isEmpty
+        paymentView.isHidden = isEmpty
     }
 
     private func updatePaymentInfo() {
@@ -347,8 +377,11 @@ final class CartViewController: UIViewController, LoadingView, ErrorView {
     }
     
     private func removeItem(at indexPath: IndexPath) {
-        let item = cartItems[indexPath.row]
-        showConfirmDelete(for: item, at: indexPath)
+        guard cartItems.indices.contains(indexPath.row) else {
+            print("Ошибка: Невозможно удалить элемент, индекс \(indexPath.row) вне диапазона")
+            return
+        }
+        showConfirmDelete(for: cartItems[indexPath.row], at: indexPath)
     }
     
     private func showConfirmDelete(for item: CartItem, at indexPath: IndexPath) {
