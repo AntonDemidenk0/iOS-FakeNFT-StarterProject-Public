@@ -277,6 +277,7 @@
 				1CC69CBA2CE3A111003971CF /* PaymentViewController.swift */,
 			);
 			path = Payment;
+		};
 		1ACD59FE2CE131DF00DA04DC /* SortOption */ = {
 			isa = PBXGroup;
 			children = (
