@@ -17,7 +17,6 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
     private var images: [String: UIImage] = [:]
     private var order: Order?
     private var profile: Profile?
-
     
     // MARK: - UI Elements
     
@@ -120,7 +119,24 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
         setupCustomBackButton()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        fetchOrder()
+    }
+
     // MARK: - Setup Methods
+    
+    private func updateCollectionViewForOrder() {
+        guard let order = self.order else { return }
+
+        for (index, nft) in nfts.enumerated() {
+            let isInCart = order.nfts.contains(nft.id)
+            if let cell = nftCollectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? NFTCollectionViewCell {
+                cell.setCartState(isInCart)
+            }
+        }
+    }
     
     private func customizeNavigationBar() {
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
@@ -177,6 +193,7 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
     private func addConstraints() {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         contentView.translatesAutoresizingMaskIntoConstraints = false
+        
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -266,6 +283,10 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
     private func fetchNFTs() {
         let uniqueNftIDs = Array(Set(collection.nfts))
         
+        guard uniqueNftIDs != nfts.map({ $0.id }) else {
+            return
+        }
+
         initializePlaceholderNFTs(with: uniqueNftIDs)
         nftCollectionView.reloadData()
         updateCollectionViewHeight()
@@ -371,7 +392,7 @@ final class NFTCollectionViewController: UIViewController, ErrorView {
                 switch result {
                 case .success(let order):
                     self?.order = order
-                    self?.nftCollectionView.reloadData()
+                    self?.updateCollectionViewForOrder()
                 case .failure(let error):
                     print("Failed to fetch order: \(error)")
                     self?.showError(ErrorModel(

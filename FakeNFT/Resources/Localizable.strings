@@ -13,9 +13,9 @@
 "Retry" = "Повторить";
 "Cancel" = "Отмена";
 "Network Error" = "Сетевая ошибка";
-"Sort.title" = "Сортировать";
+"Sort.title" = "Сортирововка";
 "Sort.byName" = "По названию";
-"Sort.byCount" = "По количеству";
+"Sort.byCount" = "По количеству NFT";
 "Sort.close" = "Закрыть";
 
 "Unable to fetch collections. Please check your internet connection and try again." = "Не удалось загрузить коллекции. Проверьте подключение к интернету и попробуйте снова.";
