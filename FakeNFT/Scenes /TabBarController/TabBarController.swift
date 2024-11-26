@@ -19,19 +19,14 @@ final class TabBarController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let catalogController = TestCatalogViewController(
-            servicesAssembly: servicesAssembly
-        )
-        catalogController.tabBarItem = catalogTabBarItem
-
-        // Инициализация экрана корзины
-        let cartController = CartViewController(
-            cartService: servicesAssembly.cartService,
-            orderId: "1" // Временно передаем тестовый orderId
-        )
+        let catalogController = CatalogViewController(servicesAssembly: servicesAssembly)
+        let catalogNavigationController = UINavigationController(rootViewController: catalogController)
+        catalogNavigationController.tabBarItem = catalogTabBarItem
+      
+        let cartController = CartViewController(cartService: servicesAssembly.cartService,orderId: "1")
         cartController.tabBarItem = cartTabBarItem
-        
-        viewControllers = [catalogController, cartController]
+      
+        viewControllers = [catalogNavigationController, cartController]
 
         view.backgroundColor = .systemBackground
     }

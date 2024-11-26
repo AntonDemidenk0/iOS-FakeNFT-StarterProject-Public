@@ -1,6 +1,7 @@
 import Foundation
 
 enum NetworkClientError: Error {
+    case invalidURL
     case httpStatusCode(Int)
     case urlRequestError(Error)
     case urlSessionError
