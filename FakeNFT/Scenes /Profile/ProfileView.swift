@@ -11,8 +11,10 @@ final class ProfileView: UIView {
     var websiteLabelTapped: ((String) -> Void)?
     var myNFTTapped: (() -> Void)?
     var favoritesTapped: (() -> Void)?
+    var aboutDeveloper: ((String) -> Void)?
     private var nftsCount: Int = 0
     private var likesCount: Int = 0
+    private let likesStorage = LikesStorageImpl.shared
     
     // MARK: - UI Elements
     
@@ -155,6 +157,12 @@ final class ProfileView: UIView {
         profileTableView.reloadData()
         
     }
+    
+    func updateLikesCountAndUI() {
+        let likes = likesStorage.getAllLikes()
+        likesCount = likes.count
+        profileTableView.reloadData()
+    }
 }
 
 // MARK: - UITableViewDataSource
@@ -194,20 +202,22 @@ extension ProfileView: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch indexPath.row {
-           case 0:
-               if let myNFTTapped = myNFTTapped {
-                   myNFTTapped()
-               }
-           case 1:
+        case 0:
+            if let myNFTTapped = myNFTTapped {
+                myNFTTapped()
+            }
+        case 1:
             if let favoritesTapped = favoritesTapped {
                 favoritesTapped()
             }           case 2:
-               print("Переход на сайт разработчика")
-           default:
-               break
-           }
-       }
+            if let aboutDeveloper = aboutDeveloper {
+                aboutDeveloper("https://github.com/Yandex-Practicum/iOS-FakeNFT-StarterProject-Public")
+            }
+        default:
+            break
+        }
     }
+}
 
 private extension ProfileView {
     enum Constraints {

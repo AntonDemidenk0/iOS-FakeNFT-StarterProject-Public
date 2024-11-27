@@ -14,6 +14,8 @@ final class NFTCell: UITableViewCell {
     
     private var priceLabel: UILabel?
     
+    var likeButtonTapped: (() -> Void)?
+    
     private lazy var nftImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
@@ -26,8 +28,9 @@ final class NFTCell: UITableViewCell {
     private lazy var likeButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(named: "white_heart"), for: .normal)
-        button.tintColor = .white
+        button.tintColor = .red
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(didTapLikeButton), for: .touchUpInside)
         return button
     }()
     
@@ -150,7 +153,7 @@ final class NFTCell: UITableViewCell {
         ])
     }
     
-    func configure(with nft: MyNFT) {
+    func configure(with nft: MyNFT, isLiked: Bool) {
         
         let extractedName = nft.images.first.flatMap { imageURL in
             extractName(from: [imageURL])
@@ -158,12 +161,12 @@ final class NFTCell: UITableViewCell {
         nftNameLabel.text = extractedName
         
         let authorName = nft.name
-            if authorName.count > 10 {
-                let formattedAuthorName = authorName.replacingOccurrences(of: " ", with: "\n")
-                authorLabel.text = "\(NSLocalizedString("by", comment: "")) \(formattedAuthorName)"
-            } else {
-                authorLabel.text = "\(NSLocalizedString("by", comment: "")) \(authorName)"
-            }
+        if authorName.count > 10 {
+            let formattedAuthorName = authorName.replacingOccurrences(of: " ", with: "\n")
+            authorLabel.text = "\(NSLocalizedString("by", comment: "")) \(formattedAuthorName)"
+        } else {
+            authorLabel.text = "\(NSLocalizedString("by", comment: "")) \(authorName)"
+        }
         
         priceLabel?.text = "\(numberFormatter.string(from: nft.price as NSNumber) ?? "\(nft.price) ETH")"
         
@@ -171,6 +174,8 @@ final class NFTCell: UITableViewCell {
             nftImageView.kf.setImage(with: url)
         }
         updateRating(for: nft.rating)
+        let likeImage = isLiked ? "red_heart" : "white_heart"
+        likeButton.setImage(UIImage(named: likeImage), for: .normal)
     }
     
     private func extractName(from images: [String]) -> String? {
@@ -192,5 +197,9 @@ final class NFTCell: UITableViewCell {
                 starImageView.image = UIImage(named: "star_empty")
             }
         }
+    }
+    
+    @objc private func didTapLikeButton() {
+        likeButtonTapped?()
     }
 }

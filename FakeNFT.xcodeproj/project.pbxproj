@@ -26,6 +26,7 @@
 		1F4CE8FA2CF0B74000BB79EF /* FavoritesNftViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4CE8F92CF0B74000BB79EF /* FavoritesNftViewController.swift */; };
 		1F4CE8FC2CF0B80900BB79EF /* FavoritesNftView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4CE8FB2CF0B80900BB79EF /* FavoritesNftView.swift */; };
 		1F4CE9002CF49CDA00BB79EF /* FavoritesNftCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4CE8FF2CF49CC600BB79EF /* FavoritesNftCollectionCell.swift */; };
+		1F4CE9022CF4B35300BB79EF /* LikesStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4CE9012CF4B34B00BB79EF /* LikesStorage.swift */; };
 		1FD9B9002CE2127A0032E5D2 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9B8FF2CE2126D0032E5D2 /* ProfileViewController.swift */; };
 		1FD9B90C2CE27BF30032E5D2 /* ProfileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9B90B2CE27BEC0032E5D2 /* ProfileService.swift */; };
 		1FD9B90E2CE27C3F0032E5D2 /* ProfileRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD9B90D2CE27C380032E5D2 /* ProfileRequest.swift */; };
@@ -101,6 +102,7 @@
 		1F4CE8F92CF0B74000BB79EF /* FavoritesNftViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesNftViewController.swift; sourceTree = "<group>"; };
 		1F4CE8FB2CF0B80900BB79EF /* FavoritesNftView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesNftView.swift; sourceTree = "<group>"; };
 		1F4CE8FF2CF49CC600BB79EF /* FavoritesNftCollectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesNftCollectionCell.swift; sourceTree = "<group>"; };
+		1F4CE9012CF4B34B00BB79EF /* LikesStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LikesStorage.swift; sourceTree = "<group>"; };
 		1FD9B8FC2CE20EAA0032E5D2 /* ProfileDecomposition.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ProfileDecomposition.md; sourceTree = "<group>"; };
 		1FD9B8FF2CE2126D0032E5D2 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		1FD9B90B2CE27BEC0032E5D2 /* ProfileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileService.swift; sourceTree = "<group>"; };
@@ -220,6 +222,7 @@
 		0CFCB74C2A7817C30009A829 /* MemoryStorage */ = {
 			isa = PBXGroup;
 			children = (
+				1F4CE9012CF4B34B00BB79EF /* LikesStorage.swift */,
 				0CFCB74D2A7817DC0009A829 /* NftStorage.swift */,
 				1FD9B9372CE770540032E5D2 /* MyNftStorage.swift */,
 			);
@@ -618,6 +621,7 @@
 				3F68069929CBBAF100B4F915 /* SceneDelegate.swift in Sources */,
 				0C79EE6C2A76DE2E00EE90EA /* ServicesAssemly.swift in Sources */,
 				0CFCB74E2A7817DC0009A829 /* NftStorage.swift in Sources */,
+				1F4CE9022CF4B35300BB79EF /* LikesStorage.swift in Sources */,
 				3FC8C39129D2453B0081F015 /* ExamplePutRequest.swift in Sources */,
 				1F4CE8FC2CF0B80900BB79EF /* FavoritesNftView.swift in Sources */,
 				0CFCB7462A78064B0009A829 /* NftDetailCellModel.swift in Sources */,

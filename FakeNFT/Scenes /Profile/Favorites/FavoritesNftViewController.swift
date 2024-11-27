@@ -9,6 +9,7 @@ import UIKit
 final class FavoritesNftViewController: UIViewController {
     
     var favoriteNfts: [MyNFT] = []
+    var saveLikes: (() -> Void)?
 
     override func loadView() {
         self.view = FavoritesNftView()
@@ -35,6 +36,11 @@ final class FavoritesNftViewController: UIViewController {
     }
 
     @objc private func backButtonTapped() {
+        if let saveLikes = saveLikes {
+            DispatchQueue.main.async {
+                saveLikes()
+            }
+        }
         navigationController?.popViewController(animated: true)
     }
 

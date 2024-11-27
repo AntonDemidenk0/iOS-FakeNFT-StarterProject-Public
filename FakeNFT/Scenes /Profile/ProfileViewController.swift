@@ -25,6 +25,7 @@ final class ProfileViewController: UIViewController {
     private var likes: [String]?
     private let myNFTViewController = MyNFTViewController()
     private var blockingView: UIView?
+    private let likesStorage = LikesStorageImpl.shared
     
     // MARK: - UI Elements
     private lazy var editProfileButton: UIButton = {
@@ -59,9 +60,12 @@ final class ProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view = profileView
+        likes = likesStorage.getAllLikes()
+        
         profileView.websiteLabelTapped = { [weak self] address in
             self?.didTapOnWebsiteLabel(with: address)
         }
+        
         profileView.myNFTTapped = { [weak self] in
             guard let self = self else { return }
             if let nftIds = self.myNFTs, !nftIds.isEmpty {
@@ -70,14 +74,18 @@ final class ProfileViewController: UIViewController {
                 self.showNFTScreen(with: [])
             }
         }
-
+        
         profileView.favoritesTapped = { [weak self] in
             guard let self = self else { return }
-            if let nftIds = self.myNFTs, !nftIds.isEmpty {
+            if let nftIds = self.likes, !nftIds.isEmpty {
                 self.loadNFTs(with: nftIds, for: .favoritesScreen)
             } else {
                 self.showFavoritesScreen(with: [])
             }
+        }
+        
+        profileView.aboutDeveloper = { [weak self] address in
+            self?.didTapOnWebsiteLabel(with: address)
         }
         
         setupNavigationBar()
@@ -109,8 +117,10 @@ final class ProfileViewController: UIViewController {
                 switch result {
                 case .success(let loadedProfile):
                     self.profile = loadedProfile
-                    self.profileView.updateUI(with: loadedProfile)
                     self.myNFTs = loadedProfile.nfts
+                    self.likes = loadedProfile.likes
+                    self.profileView.updateUI(with: loadedProfile)
+                    likesStorage.syncLikes(with: loadedProfile.likes)
                 case .failure(let error):
                     self.showErrorAlert(with: error)
                 }
@@ -183,15 +193,58 @@ final class ProfileViewController: UIViewController {
         let myNFTViewController = MyNFTViewController()
         myNFTViewController.nfts = nfts
         myNFTViewController.hidesBottomBarWhenPushed = true
+        myNFTViewController.saveLikes = { [weak self] in
+                guard let self = self else { return }
+                
+                let likes = likesStorage.getAllLikes()
+                
+                self.updateLikesOnServer(likes: likes) { result in
+                    switch result {
+                    case .success:
+                        self.profileView.updateLikesCountAndUI()
+                    case .failure(let error):
+                        print("Ошибка при отправке лайков на сервер: \(error)")
+                    }
+                }
+            }
         navigationController.pushViewController(myNFTViewController, animated: true)
     }
     
     private func showFavoritesScreen(with nfts: [MyNFT]) {
         guard let navigationController = self.navigationController else { return }
         let favoritesNftViewController = FavoritesNftViewController()
+        
         favoritesNftViewController.favoriteNfts = nfts
         favoritesNftViewController.hidesBottomBarWhenPushed = true
+        
+        favoritesNftViewController.saveLikes = { [weak self] in
+            guard let self = self else { return }
+            
+            self.likes = self.likesStorage.getAllLikes()
+            self.updateLikesOnServer(likes: self.likes ?? []) { result in
+                switch result {
+                case .success:
+                    self.profileView.updateLikesCountAndUI()
+                case .failure(let error):
+                    print("Ошибка при отправке лайков на сервер: \(error)")
+                }
+            }
+        }
+        
         navigationController.pushViewController(favoritesNftViewController, animated: true)
+    }
+    
+    private func updateLikesOnServer(likes: [String], completion: @escaping (Result<Void, Error>) -> Void) {
+        let likes = likesStorage.getAllLikes()
+        servicesAssembly.profileService.updateLikes(likes: likes) { [weak self] result in
+            switch result {
+            case .success:
+                self?.likes = likes
+                completion(.success(()))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
     }
     
     // MARK: - Actions

@@ -23,17 +23,6 @@ struct ProfilePutRequest: NetworkRequest {
     var httpMethod: HttpMethod = .put
     var dto: Dto?
     
-    var body: Data? {
-        guard let dto = dto as? ProfileDtoObject else { return nil }
-        return dto.asURLEncodedString().data(using: .utf8)
-    }
-    
-    var headers: [String: String] {
-        [
-            "Content-Type": "application/x-www-form-urlencoded"
-        ]
-    }
-    
     init(dto: ProfileDtoObject) {
         self.dto = dto
     }
@@ -61,19 +50,8 @@ struct ProfileDtoObject: Dto {
             CodingKeys.description.rawValue: description.isEmpty ? "" : description,
             CodingKeys.website.rawValue: website.isEmpty ? "" : website,
             CodingKeys.avatar.rawValue: avatar.isEmpty ? "" : avatar,
-            CodingKeys.likes.rawValue: likes.isEmpty ? "" : likes.joined(separator: ","),
+            CodingKeys.likes.rawValue: likes.isEmpty ? "," : likes.joined(separator: ","),
         ]
     }
     
-    func asURLEncodedString() -> String {
-            asDictionary()
-                .compactMap { key, value in
-                    guard let encodedKey = key.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-                          let encodedValue = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
-                        return nil
-                    }
-                    return "\(encodedKey)=\(encodedValue)"
-                }
-                .joined(separator: "&")
-        }
-    }
+}

@@ -16,6 +16,7 @@ final class MyNFTViewController: UIViewController {
 
     var nfts: [MyNFT] = []
     private let sortTypeKey = "selectedSortType"
+    var saveLikes: (() -> Void)?
 
     override func loadView() {
         self.view = MyNFTView()
@@ -32,6 +33,7 @@ final class MyNFTViewController: UIViewController {
         
         updateNFTView()
     }
+    
 
     private func setupNavigationBar() {
         title = NSLocalizedString("MyNFT", comment: "")
@@ -53,6 +55,11 @@ final class MyNFTViewController: UIViewController {
     }
 
     @objc private func backButtonTapped() {
+        if let saveLikes = saveLikes {
+            DispatchQueue.main.async {
+                saveLikes()
+            }
+        }
         navigationController?.popViewController(animated: true)
     }
 

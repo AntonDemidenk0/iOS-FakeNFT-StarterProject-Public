@@ -11,6 +11,7 @@ import Kingfisher
 final class NFTCollectionCell: UICollectionViewCell {
     
     static let reuseIdentifier = "NFTCollectionCell"
+    var likeButtonTapped: (() -> Void)?
     
     private lazy var nftImageView: UIImageView = {
         let imageView = UIImageView()
@@ -68,8 +69,8 @@ final class NFTCollectionCell: UICollectionViewCell {
     private lazy var likeButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(named: "red_heart"), for: .normal)
-        button.tintColor = .red
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(didTapLikeButton), for: .touchUpInside)
         return button
     }()
     
@@ -137,5 +138,8 @@ final class NFTCollectionCell: UICollectionViewCell {
             starImageView.image = UIImage(named: index < rating ? "star_filled" : "star_empty")
         }
     }
+    
+    @objc private func didTapLikeButton() {
+        likeButtonTapped?()
+    }
 }
-

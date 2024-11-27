@@ -13,9 +13,10 @@ final class FavoritesNftView: UIView {
     private var nftItems: [MyNFT] = [] {
         didSet {
             updateUI()
-            collectionView.reloadData()
         }
     }
+    
+    private let likesStorage = LikesStorageImpl.shared
     
     private lazy var placeholderLabel: UILabel = {
         let label = UILabel()
@@ -24,7 +25,6 @@ final class FavoritesNftView: UIView {
         label.font = UIFont.boldSystemFont(ofSize: 17)
         label.textColor = UIColor(named: "YBlackColor")
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.isHidden = true
         return label
     }()
     
@@ -76,7 +76,8 @@ final class FavoritesNftView: UIView {
     }
     
     func updateUI() {
-        placeholderLabel.isHidden = !nftItems.isEmpty
+        collectionView.reloadData()
+        collectionView.isHidden = nftItems.isEmpty
     }
     
     func updateNFTs(with nfts: [MyNFT]) {
@@ -90,15 +91,26 @@ extension FavoritesNftView: UICollectionViewDataSource, UICollectionViewDelegate
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NFTCollectionCell.reuseIdentifier, for: indexPath) as? NFTCollectionCell else {
+        guard let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: NFTCollectionCell.reuseIdentifier,
+            for: indexPath
+        ) as? NFTCollectionCell else {
             return UICollectionViewCell()
         }
+        
         let nft = nftItems[indexPath.item]
         cell.configure(with: nft)
+        
+        cell.likeButtonTapped = { [weak self] in
+            guard let self = self else { return }
+            
+            self.likesStorage.removeLike(for: nft.id)
+            self.nftItems.removeAll { $0.id == nft.id }
+        }
+        
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print("Selected NFT: \(nftItems[indexPath.item])")
     }
 }

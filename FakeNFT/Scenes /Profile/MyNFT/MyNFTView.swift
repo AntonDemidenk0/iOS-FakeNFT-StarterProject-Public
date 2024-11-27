@@ -10,6 +10,8 @@ import Kingfisher
 
 final class MyNFTView: UIView {
     
+    private let likesStorage = LikesStorageImpl.shared
+
     private var nftItems: [MyNFT] = [] {
         didSet {
             updateUI()
@@ -87,8 +89,19 @@ extension MyNFTView: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: NFTCell.reuseIdentifier, for: indexPath) as! NFTCell
         let nft = nftItems[indexPath.row]
-        cell.configure(with: nft)
+        let isLiked = likesStorage.isLiked(nft.id)
+        
+        cell.configure(with: nft, isLiked: isLiked)
         cell.selectionStyle = .none
+        cell.likeButtonTapped = { [weak self] in
+            guard let self = self else { return }
+            if isLiked {
+                self.likesStorage.removeLike(for: nft.id)
+            } else {
+                self.likesStorage.saveLike(for: nft.id)
+            }
+            tableView.reloadData()
+        }
         return cell
     }
     
