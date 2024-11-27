@@ -50,7 +50,7 @@ struct ProfileDtoObject: Dto {
             CodingKeys.description.rawValue: description.isEmpty ? "" : description,
             CodingKeys.website.rawValue: website.isEmpty ? "" : website,
             CodingKeys.avatar.rawValue: avatar.isEmpty ? "" : avatar,
-            CodingKeys.likes.rawValue: likes.isEmpty ? "," : likes.joined(separator: ","),
+            CodingKeys.likes.rawValue: likes.isEmpty ? "null" : likes.joined(separator: ","),
         ]
     }
     
