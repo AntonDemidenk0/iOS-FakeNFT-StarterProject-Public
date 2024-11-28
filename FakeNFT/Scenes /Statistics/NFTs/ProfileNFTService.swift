@@ -61,9 +61,8 @@ final class ProfileNFTService {
         }
         
         let endpoint = "/api/v1/profile/1"
-        let parameters: [String: String] = profile.likes.count == 1 && profile.likes.contains(currentNFT.id)
-        ? ["likes": "null"]
-        : ["likes": newLikes.joined(separator: ",")]
+        let parameters: [String: String] = profile.likes.count == 1 &&
+        profile.likes.contains(currentNFT.id) ? ["likes": "null"] : ["likes": newLikes.joined(separator: ",")]
         
         updateData(endpoint: endpoint, parameters: parameters, completion: completion)
     }
@@ -83,9 +82,8 @@ final class ProfileNFTService {
         }
         
         let endpoint = "/api/v1/orders/1"
-        let parameters: [String: String] = cart.nfts.count == 1 && cart.nfts.first == currentNFT.id
-        ? [:]
-        : ["nfts": newCart.joined(separator: ",")]
+        let parameters: [String: String] = cart.nfts.count == 1 &&
+        cart.nfts.first == currentNFT.id ? [:] : ["nfts": newCart.joined(separator: ",")]
         
         updateData(endpoint: endpoint, parameters: parameters, completion: completion)
     }

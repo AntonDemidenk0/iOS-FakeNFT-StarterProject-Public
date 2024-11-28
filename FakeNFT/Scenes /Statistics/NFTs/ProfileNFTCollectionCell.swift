@@ -102,7 +102,7 @@ final class ProfileNFTCollectionCell: UICollectionViewCell {
     
     // MARK: - Configure
     
-    func configure(with nft: Nft) {
+    func configure(nft: Nft, cart: Cart, profile: ProfileModel) {
         self.nft = nft
         nftImage.kf.indicatorType = .activity
         guard let url = nft.images.first else { return }
@@ -113,17 +113,29 @@ final class ProfileNFTCollectionCell: UICollectionViewCell {
         nameLabel.text = ProfileNFTCollectionCell.limitedText(nft.name, limit: 9)
         priceLabel.text = "\(nft.price) ETH"
         ratingStarsView.rating = nft.rating
+        
+        if profile.likes.contains(nft.id)  {
+            self.likeButton.setImage(UIImage(named: "emptyHeart"), for: .normal)
+        } else {
+            self.likeButton.setImage(UIImage(named: "filledHeart"), for: .normal)
+        }
+        
+        if cart.nfts.contains(nft.id) {
+            addToCartButton.setImage(UIImage(named: "addToCart"), for: .normal)
+        } else {
+            addToCartButton.setImage(UIImage(named: "deleteFromCart"), for: .normal)
+        }
     }
     
     func setLiked(isLiked: Bool) {
-        let like = isLiked ? UIImage(named: "filledHeart") : UIImage(named: "emptyHeart")
+        let like = isLiked ? UIImage(named: "emptyHeart") : UIImage(named: "filledHeart")
         DispatchQueue.main.async {
             self.likeButton.setImage(like, for: .normal)
         }
     }
     
     func setAdded(isAdded: Bool) {
-        let add = isAdded ? UIImage(named: "deleteFromCart") : UIImage(named: "addToCart")
+        let add = isAdded ? UIImage(named: "addToCart") : UIImage(named: "deleteFromCart")
         DispatchQueue.main.async {
             self.addToCartButton.setImage(add, for: .normal)
         }
