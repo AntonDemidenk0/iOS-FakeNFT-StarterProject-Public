@@ -170,3 +170,10 @@ extension StatisticsViewController: UICollectionViewDelegate {
         navigationController?.pushViewController(profileVC, animated: true)
     }
 }
+
+// MARK: - Supporting Types
+
+enum SortCriterion {
+    case name
+    case rating
+}
