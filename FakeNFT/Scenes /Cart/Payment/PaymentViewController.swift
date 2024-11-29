@@ -91,7 +91,7 @@ final class PaymentViewController: UIViewController, LoadingView, ErrorView {
         button.setTitleColor(.systemBlue, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         button.contentHorizontalAlignment = .left
-        button.addTarget(self, action: #selector(showAgreement), for: .touchUpInside)
+        button.addTarget(PaymentViewController.self, action: #selector(showAgreement), for: .touchUpInside)
         return button
     }()
     

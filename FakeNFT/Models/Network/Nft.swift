@@ -1,6 +1,5 @@
 import Foundation
 
-
 struct Nft: Decodable {
     let id: String
     let name: String
@@ -14,6 +13,3 @@ struct Nft: Decodable {
         images.compactMap { URL(string: $0) }
     }
 }
-
-
-

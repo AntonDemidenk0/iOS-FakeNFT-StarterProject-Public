@@ -42,7 +42,7 @@ final class NFTCollectionViewCell: UICollectionViewCell, LoadingView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(named: "noActive"), for: .normal)
-        button.addTarget(self, action: #selector(favoriteButtonTapped), for: .touchUpInside)
+        button.addTarget(NFTCollectionViewCell.self, action: #selector(favoriteButtonTapped), for: .touchUpInside)
         return button
     }()
 
@@ -78,7 +78,7 @@ final class NFTCollectionViewCell: UICollectionViewCell, LoadingView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(named: "emptyBasket"), for: .normal)
-        button.addTarget(self, action: #selector(cartButtonTapped), for: .touchUpInside)
+        button.addTarget(NFTCollectionViewCell.self, action: #selector(cartButtonTapped), for: .touchUpInside)
         return button
     }()
     

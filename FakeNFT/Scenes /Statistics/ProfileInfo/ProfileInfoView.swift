@@ -141,7 +141,7 @@ final class ProfileInfoView: UIViewController {
     
     @objc private func webButtonTapped() {
         guard let url = person?.website, !url.isEmpty else { return }
-        let webVC = WebViewController(url: url)
+        let webVC = StatisticsWebViewController(url: url)
         navigationController?.pushViewController(webVC, animated: true)
     }
 }

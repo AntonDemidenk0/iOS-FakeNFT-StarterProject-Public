@@ -29,7 +29,7 @@ final class PaymentServiceImpl: PaymentService {
         
         let request = CurrenciesRequest()
         networkClient.send(request: request) { [weak self] (result: Result<Data, Error>) in
-            guard let self = self else {
+            guard self != nil else {
                 print("🛑 [PaymentService] Сильная ссылка утрачена, загрузка валют не удалась")
                 return
             }

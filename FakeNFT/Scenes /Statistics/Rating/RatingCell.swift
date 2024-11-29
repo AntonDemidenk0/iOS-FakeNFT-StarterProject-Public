@@ -17,10 +17,9 @@ final class RatingCell: UICollectionViewCell {
         let imageView = UIImageView()
         imageView.layer.cornerRadius = 14
         imageView.clipsToBounds = true
-        imageView.backgroundColor = .lightGray  // Устанавливаем цвет фона для проверки
+        imageView.backgroundColor = .lightGray
         return imageView
     }()
-    
     
     private let nameLabel: UILabel = {
         let label = UILabel()

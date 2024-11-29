@@ -46,7 +46,7 @@ final class ProfileNFTService {
         }
     }
     
-    func fetchProfile(completion: @escaping (Result<ProfileModel, Error>) -> Void) {
+    func fetchProfile(completion: @escaping (Result<Profile, Error>) -> Void) {
         guard let request = makeRequest(forPath: "/api/v1/profile/1") else {
             completion(.failure(ServiceError.invalidURL))
             return
@@ -54,7 +54,7 @@ final class ProfileNFTService {
         fetchData(request: request, completion: completion)
     }
     
-    func updateLikes(newLikes: [String], profile: ProfileModel, completion: @escaping (Result<Void, Error>) -> Void) {
+    func updateLikes(newLikes: [String], profile: Profile, completion: @escaping (Result<Void, Error>) -> Void) {
         guard let currentNFT = currentNFT else {
             logError("Current NFT is not set.")
             return
@@ -67,7 +67,7 @@ final class ProfileNFTService {
         updateData(endpoint: endpoint, parameters: parameters, completion: completion)
     }
     
-    func fetchCart(completion: @escaping (Result<Cart, Error>) -> Void) {
+    func fetchCart(completion: @escaping (Result<Order, Error>) -> Void) {
         guard let request = makeRequest(forPath: "/api/v1/orders/1") else {
             completion(.failure(ServiceError.invalidURL))
             return
@@ -75,7 +75,7 @@ final class ProfileNFTService {
         fetchData(request: request, completion: completion)
     }
     
-    func updateCart(newCart: [String], cart: Cart, completion: @escaping (Result<Void, Error>) -> Void) {
+    func updateCart(newCart: [String], cart: Order, completion: @escaping (Result<Void, Error>) -> Void) {
         guard let currentNFT = currentNFT else {
             logError("Current NFT is not set.")
             return

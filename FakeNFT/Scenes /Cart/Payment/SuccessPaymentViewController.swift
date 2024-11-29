@@ -46,7 +46,7 @@ final class SuccessPaymentViewController: UIViewController {
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 16
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(returnToCatalogTapped), for: .touchUpInside)
+        button.addTarget(SuccessPaymentViewController.self, action: #selector(returnToCatalogTapped), for: .touchUpInside)
         return button
     }()
     
