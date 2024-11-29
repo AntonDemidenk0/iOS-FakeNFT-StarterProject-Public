@@ -164,11 +164,3 @@ final class ProfileNFTService {
         print("[Error] \(message)")
     }
 }
-
-// MARK: - Supporting Types
-
-enum ServiceError: Error {
-    case invalidURL
-    case noData
-    case serverError
-}

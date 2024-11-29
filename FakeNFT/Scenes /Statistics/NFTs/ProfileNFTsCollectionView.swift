@@ -85,34 +85,22 @@ final class ProfileNFTsCollectionView: UIViewController {
     }
     
     private func fetchProfileAndCartData() {
-        let group = DispatchGroup()
-        
-        group.enter()
-        service.fetchProfile { [weak self] result in
-            switch result {
-            case .success(let profileData):
-                self?.profile = profileData
-            case .failure(let error):
-                print("Error fetching profile: \(error)")
+            let group = DispatchGroup()
+            
+            group.enter()
+            fetchProfile {
+                group.leave()
             }
-            group.leave()
-        }
-        
-        group.enter()
-        service.fetchCart { [weak self] result in
-            switch result {
-            case .success(let cartData):
-                self?.cart = cartData
-            case .failure(let error):
-                print("Error fetching cart: \(error)")
+            
+            group.enter()
+            fetchCart {
+                group.leave()
             }
-            group.leave()
+            
+            group.notify(queue: .main) {
+                self.nftCollection.reloadData()
+            }
         }
-        
-        group.notify(queue: .main) {
-            self.nftCollection.reloadData()
-        }
-    }
     
     // MARK: - Data Fetching
     
@@ -144,6 +132,18 @@ final class ProfileNFTsCollectionView: UIViewController {
         }
     }
     
+    private func fetchCart(completion: @escaping () -> Void) {
+            service.fetchCart { [weak self] result in
+                switch result {
+                case .success(let cartData):
+                    self?.cart = cartData
+                case .failure(let error):
+                    print("Error fetching cart: \(error)")
+                }
+                completion()
+            }
+        }
+    
     // MARK: - UI Updates
     
     private func updateView() {
@@ -155,9 +155,18 @@ final class ProfileNFTsCollectionView: UIViewController {
         UIProgressHUD.show()
         
         guard let profile = profile else {
+            UIProgressHUD.dismiss()
             return
         }
         
+        let (isLiked, updatedLikes) = toggleLike(for: nft, in: profile)
+        
+        updateLikes(updatedLikes) { [weak self] result in
+            self?.handleLikeUpdateResult(result, isLiked: isLiked, completion: completion)
+        }
+    }
+
+    private func toggleLike(for nft: Nft, in profile: ProfileModel) -> (Bool, [String]) {
         var likes = profile.likes
         let id = nft.id
         let isLiked: Bool
@@ -170,27 +179,52 @@ final class ProfileNFTsCollectionView: UIViewController {
             isLiked = true
         }
         
-        service.updateLikes(newLikes: likes, profile: profile) { [weak self] result in
-            DispatchQueue.main.async {
-                UIProgressHUD.dismiss()
-                switch result {
-                case .success:
-                    self?.getProfile() {
-                        completion(.success(isLiked))
-                    }
-                case .failure(let error):
-                    completion(.failure(error))
+        return (isLiked, likes)
+    }
+
+    private func updateLikes(_ likes: [String], completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let profile = profile else {
+            completion(.failure(NSError(domain: "Profile not found", code: -1, userInfo: nil)))
+            return
+        }
+        
+        service.updateLikes(newLikes: likes, profile: profile) { result in
+            completion(result)
+        }
+    }
+
+    private func handleLikeUpdateResult(_ result: Result<Void, Error>, isLiked: Bool, completion: @escaping (Result<Bool, Error>) -> Void) {
+        DispatchQueue.main.async {
+            UIProgressHUD.dismiss()
+            
+            switch result {
+            case .success:
+                self.getProfile {
+                    completion(.success(isLiked))
                 }
+            case .failure(let error):
+                completion(.failure(error))
             }
         }
     }
     
     func updateCart(nft: Nft, completion: @escaping (Result<Bool, Error>) -> Void) {
         UIProgressHUD.show()
+        
         guard let cart = cart else {
+            UIProgressHUD.dismiss()
+            completion(.failure(NSError(domain: "Cart not found", code: -1, userInfo: nil)))
             return
         }
         
+        let (isAdded, updatedCartItems) = toggleCartItem(for: nft, in: cart)
+        
+        updateCartItems(updatedCartItems) { [weak self] result in
+            self?.handleCartUpdateResult(result, isAdded: isAdded, completion: completion)
+        }
+    }
+
+    private func toggleCartItem(for nft: Nft, in cart: Cart) -> (Bool, [String]) {
         var cartItems = cart.nfts
         let id = nft.id
         let isAdded: Bool
@@ -203,20 +237,34 @@ final class ProfileNFTsCollectionView: UIViewController {
             isAdded = true
         }
         
-        service.updateCart(newCart: cartItems, cart: cart) { [weak self] result in
-            DispatchQueue.main.async {
-                UIProgressHUD.dismiss()
-                switch result {
-                case .success:
-                    self?.getCart()
-                    completion(.success(isAdded))
-                case .failure(let error):
-                    completion(.failure(error))
-                }
+        return (isAdded, cartItems)
+    }
+
+    private func updateCartItems(_ cartItems: [String], completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let cart = cart else {
+            completion(.failure(NSError(domain: "Cart not found", code: -1, userInfo: nil)))
+            return
+        }
+        
+        service.updateCart(newCart: cartItems, cart: cart) { result in
+            completion(result)
+        }
+    }
+
+    private func handleCartUpdateResult(_ result: Result<Void, Error>, isAdded: Bool, completion: @escaping (Result<Bool, Error>) -> Void) {
+        DispatchQueue.main.async {
+            UIProgressHUD.dismiss()
+            
+            switch result {
+            case .success:
+                self.getCart()
+                completion(.success(isAdded))
+            case .failure(let error):
+                completion(.failure(error))
             }
         }
     }
-    
+
     func getProfile(completion: @escaping () -> Void) {
         service.fetchProfile { result in
             switch result {
