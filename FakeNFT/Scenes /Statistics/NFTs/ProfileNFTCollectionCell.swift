@@ -1,9 +1,19 @@
 import UIKit
 import Kingfisher
 
+protocol ProfileNFTCellDelegate: AnyObject {
+    func didTapLikeButton(_ cell: ProfileNFTCollectionCell, nft: Nft)
+    func didTapAddToCartButton(_ cell: ProfileNFTCollectionCell, nft: Nft)
+}
+
 final class ProfileNFTCollectionCell: UICollectionViewCell {
     
     static let identifier = "ProfileNFTCollectionCell"
+    weak var delegate: ProfileNFTCellDelegate?
+    private var nft: Nft?
+    private var cart: Cart?
+    private let service = ProfileNFTService.shared
+    private var profile: ProfileModel?
     
     // MARK: - UI Components
     
@@ -92,9 +102,10 @@ final class ProfileNFTCollectionCell: UICollectionViewCell {
     
     // MARK: - Configure
     
-    func configure(with nft: NFTModel) {
+    func configure(nft: Nft, cart: Cart, profile: ProfileModel) {
+        self.nft = nft
         nftImage.kf.indicatorType = .activity
-        guard let url = URL(string: nft.images.first ?? "") else { return }
+        guard let url = nft.images.first else { return }
         nftImage.kf.setImage(with: url) { [weak self] _ in
             self?.nftImage.kf.indicatorType = .none
         }
@@ -102,20 +113,47 @@ final class ProfileNFTCollectionCell: UICollectionViewCell {
         nameLabel.text = ProfileNFTCollectionCell.limitedText(nft.name, limit: 9)
         priceLabel.text = "\(nft.price) ETH"
         ratingStarsView.rating = nft.rating
+        
+        if profile.likes.contains(nft.id)  {
+            self.likeButton.setImage(UIImage(named: "emptyHeart"), for: .normal)
+        } else {
+            self.likeButton.setImage(UIImage(named: "filledHeart"), for: .normal)
+        }
+        
+        if cart.nfts.contains(nft.id) {
+            addToCartButton.setImage(UIImage(named: "addToCart"), for: .normal)
+        } else {
+            addToCartButton.setImage(UIImage(named: "deleteFromCart"), for: .normal)
+        }
+    }
+    
+    func setLiked(isLiked: Bool) {
+        let like = isLiked ? UIImage(named: "emptyHeart") : UIImage(named: "filledHeart")
+        DispatchQueue.main.async {
+            self.likeButton.setImage(like, for: .normal)
+        }
+    }
+    
+    func setAdded(isAdded: Bool) {
+        let add = isAdded ? UIImage(named: "addToCart") : UIImage(named: "deleteFromCart")
+        DispatchQueue.main.async {
+            self.addToCartButton.setImage(add, for: .normal)
+        }
     }
     
     // MARK: - Actions
     
     @objc private func likeButtonTapped() {
-        let isLiked = likeButton.image(for: .normal) == UIImage(named: "filledHeart")
-        let newImageName = isLiked ? "emptyHeart" : "filledHeart"
-        likeButton.setImage(UIImage(named: newImageName), for: .normal)
+        guard let nft = self.nft else { return }
+        service.setCurrentNFT(nft)
+        delegate?.didTapLikeButton(self, nft: nft)
+        
     }
     
     @objc private func addToCartButtonTapped() {
-        let isBuyed = addToCartButton.image(for: .normal) == UIImage(named: "addToCart")
-        let newImageName = isBuyed ? "deleteFromCart" : "addToCart"
-        addToCartButton.setImage(UIImage(named: newImageName), for: .normal)
+        guard let nft = self.nft else { return }
+        service.setCurrentNFT(nft)
+        delegate?.didTapAddToCartButton(self, nft: nft)
     }
     
     // MARK: - Helpers

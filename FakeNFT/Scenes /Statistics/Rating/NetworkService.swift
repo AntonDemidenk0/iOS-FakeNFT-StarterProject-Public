@@ -49,7 +49,6 @@ final class StatisticService {
                     completion(.failure(URLError(.badServerResponse)))
                     return
                 }
-                
                 self.handleResponse(data, completion: completion)
             }
         }
