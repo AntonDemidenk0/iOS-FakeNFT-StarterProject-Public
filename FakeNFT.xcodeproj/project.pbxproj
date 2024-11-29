@@ -164,9 +164,6 @@
 		69647B9D2CFA727700F9E265 /* ProgressHUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressHUD.swift; sourceTree = "<group>"; };
 		69647B9F2CFA729300F9E265 /* ServiceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceError.swift; sourceTree = "<group>"; };
 		69647BA22CFA72D900F9E265 /* PersonModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonModel.swift; sourceTree = "<group>"; };
-		69661D802CFA74F200698F35 /* Nft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Nft.swift; path = FakeNFT/Models/Network/Nft.swift; sourceTree = "<group>"; };
-		69661D812CFA752700698F35 /* ProfileModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ProfileModel.swift; path = FakeNFT/Models/Network/ProfileModel.swift; sourceTree = "<group>"; };
-		69661D822CFA754F00698F35 /* PersonModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PersonModel.swift; path = FakeNFT/Models/Network/PersonModel.swift; sourceTree = "<group>"; };
 		69C31D892CEF77F100CDE688 /* NetworkConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConstants.swift; sourceTree = "<group>"; };
 		69C31D8D2CEF797300CDE688 /* ProfileModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileModel.swift; sourceTree = "<group>"; };
 		69C31D8F2CEF79D600CDE688 /* PersonModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonModel.swift; sourceTree = "<group>"; };
@@ -367,9 +364,6 @@
 		3F68068A29CBBAF100B4F915 = {
 			isa = PBXGroup;
 			children = (
-				69661D822CFA754F00698F35 /* PersonModel.swift */,
-				69661D812CFA752700698F35 /* ProfileModel.swift */,
-				69661D802CFA74F200698F35 /* Nft.swift */,
 				3F68069529CBBAF100B4F915 /* FakeNFT */,
 				3F6806AC29CBBAF200B4F915 /* FakeNFTTests */,
 				3F6806B629CBBAF200B4F915 /* FakeNFTUITests */,
