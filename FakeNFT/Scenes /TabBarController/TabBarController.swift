@@ -25,9 +25,17 @@ final class TabBarController: UITabBarController {
       
         let cartController = CartViewController(cartService: servicesAssembly.cartService,orderId: "1")
         cartController.tabBarItem = cartTabBarItem
+        
+        let statisticsViewController = StatisticsViewController()
+        let statisticsNavigationController = UINavigationController(rootViewController: statisticsViewController)
+        statisticsNavigationController.tabBarItem = UITabBarItem(
+            title: NSLocalizedString("Tab.statistics", comment: ""),
+            image: UIImage(systemName: "flag.2.crossed.fill"),
+            tag: 1
+        )
       
-        viewControllers = [catalogNavigationController, cartController]
-
+        viewControllers = [catalogNavigationController, cartController, statisticsNavigationController]
+        tabBar.unselectedItemTintColor = UIColor.black
         view.backgroundColor = .systemBackground
     }
 }
