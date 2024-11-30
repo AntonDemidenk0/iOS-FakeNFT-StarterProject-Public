@@ -1,6 +1,6 @@
 import Foundation
 
-struct Profile: Codable {
+/*struct Profile: Codable {
     let id: String
     let avatar: String
     let name: String
@@ -9,3 +9,4 @@ struct Profile: Codable {
     var likes: [String]
     var nfts: [String]
 }
+*/

@@ -5,7 +5,7 @@
 //  Created by GiyaDev on 23.11.2024.
 //
 
-import Foundation
+/*import Foundation
 
 import Foundation
 
@@ -38,3 +38,4 @@ struct ProfileDto: Dto {
     }
 }
 
+*/

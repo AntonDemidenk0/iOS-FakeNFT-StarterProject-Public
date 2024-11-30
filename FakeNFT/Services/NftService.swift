@@ -195,12 +195,12 @@ final class NftServiceImpl: NftService {
                 ]
             }
             var dto: Dto? {
-                ProfileDto(profile: profile)
+                ProfileDtoObject(name: profile.name!, description: profile.description!, website: profile.website!, avatar: profile.avatar!, likes: profile.likes)
             }
         }
         
         let request = UpdateProfileRequest(profile: profile)
-        if let dto = request.dto as? ProfileDto {
+        if let dto = request.dto as? ProfileDtoObject {
             print("[UpdateProfile] Отправляем запрос: \(dto.asDictionary())")
         }
         networkClient.send(request: request, type: Profile.self) { result in
