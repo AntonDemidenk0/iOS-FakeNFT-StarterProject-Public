@@ -88,6 +88,7 @@ final class ProfileViewController: UIViewController {
             self?.didTapOnWebsiteLabel(with: address)
         }
         
+        configureProgressHUD()
         setupNavigationBar()
         loadProfile()
     }
@@ -304,6 +305,12 @@ final class ProfileViewController: UIViewController {
     private func enableUserInteraction() {
         blockingView?.removeFromSuperview()
         blockingView = nil
+    }
+    
+    private func configureProgressHUD() {
+        ProgressHUD.colorBackground = .systemBackground
+        ProgressHUD.colorAnimation = .systemBlue
+        ProgressHUD.animationType = .circleStrokeSpin
     }
 }
 
