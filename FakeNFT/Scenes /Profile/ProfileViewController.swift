@@ -25,6 +25,8 @@ final class ProfileViewController: UIViewController {
     private var likes: [String]?
     private let myNFTViewController = MyNFTViewController()
     private var blockingView: UIView?
+    private var shouldReloadProfile = true
+
     private let likesStorage = LikesStorageImpl.shared
     
     // MARK: - UI Elements
@@ -93,6 +95,22 @@ final class ProfileViewController: UIViewController {
         loadProfile()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        if shouldReloadProfile {
+            loadProfile()
+        }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        if !shouldReloadProfile {
+                shouldReloadProfile = true
+            }
+    }
+    
     // MARK: - Setup Methods
     private func setupNavigationBar() {
         let rightBarButton = UIBarButtonItem(customView: editProfileButton)
@@ -122,6 +140,7 @@ final class ProfileViewController: UIViewController {
                     self.likes = loadedProfile.likes
                     self.profileView.updateUI(with: loadedProfile)
                     likesStorage.syncLikes(with: loadedProfile.likes)
+                    self.profileView.updateLikesCountAndUI()
                 case .failure(let error):
                     self.showErrorAlert(with: error)
                 }
@@ -197,7 +216,7 @@ final class ProfileViewController: UIViewController {
         myNFTViewController.hidesBottomBarWhenPushed = true
         myNFTViewController.saveLikes = { [weak self] in
             guard let self = self else { return }
-            
+            self.shouldReloadProfile = false
             let likes = likesStorage.getAllLikes()
             
             self.updateLikesOnServer(likes: likes) { result in
@@ -221,7 +240,7 @@ final class ProfileViewController: UIViewController {
         
         favoritesNftViewController.saveLikes = { [weak self] in
             guard let self = self else { return }
-            
+            self.shouldReloadProfile = false
             self.likes = self.likesStorage.getAllLikes()
             self.updateLikesOnServer(likes: self.likes ?? []) { result in
                 switch result {
