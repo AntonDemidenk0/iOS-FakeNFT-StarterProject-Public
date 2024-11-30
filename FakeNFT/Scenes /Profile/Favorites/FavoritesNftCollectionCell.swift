@@ -58,14 +58,6 @@ final class NFTCollectionCell: UICollectionViewCell {
         return label
     }()
     
-    private lazy var numberFormatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencySymbol = "ETH"
-        formatter.maximumFractionDigits = 2
-        return formatter
-    }()
-    
     private lazy var likeButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(named: "red_heart"), for: .normal)
@@ -113,15 +105,16 @@ final class NFTCollectionCell: UICollectionViewCell {
         ])
     }
     
-    func configure(with nft: MyNFT) {
+    func configure(with nft: MyNFT, formattedPrice: String) {
         if let imageURL = nft.images.first, let url = URL(string: imageURL) {
             nftImageView.kf.setImage(with: url)
         }
+        
         let extractedName = nft.images.first.flatMap { imageURL in
             extractName(from: [imageURL])
         }
         nftNameLabel.text = extractedName
-        priceLabel.text = "\(numberFormatter.string(from: nft.price as NSNumber) ?? "\(nft.price) ETH")"
+        priceLabel.text = formattedPrice
         updateRating(for: nft.rating)
     }
     

@@ -10,15 +10,17 @@ import Kingfisher
 
 final class MyNFTView: UIView {
     
-    private let likesStorage = LikesStorageImpl.shared
-
-    private var nftItems: [MyNFT] = [] {
+    var nftItems: [MyNFT] = [] {
         didSet {
             updateUI()
+            nftTableView.reloadData()
         }
     }
     
-    private lazy var nftTableView: UITableView = {
+    var isLiked: ((String) -> Bool)?
+    var likeButtonTapped: ((String) -> Void)?
+    
+    lazy var nftTableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
@@ -37,6 +39,14 @@ final class MyNFTView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.isHidden = true
         return label
+    }()
+    
+    private lazy var numberFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencySymbol = "ETH"
+        formatter.maximumFractionDigits = 2
+        return formatter
     }()
     
     override init(frame: CGRect) {
@@ -89,18 +99,12 @@ extension MyNFTView: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: NFTCell.reuseIdentifier, for: indexPath) as! NFTCell
         let nft = nftItems[indexPath.row]
-        let isLiked = likesStorage.isLiked(nft.id)
-        
-        cell.configure(with: nft, isLiked: isLiked)
+        let formattedPrice = numberFormatter.string(from: nft.price as NSNumber) ?? "\(nft.price) ETH"
+        let liked = isLiked?(nft.id) ?? false
+        cell.configure(with: nft, isLiked: liked, formattedPrice: formattedPrice)
         cell.selectionStyle = .none
         cell.likeButtonTapped = { [weak self] in
-            guard let self = self else { return }
-            if isLiked {
-                self.likesStorage.removeLike(for: nft.id)
-            } else {
-                self.likesStorage.saveLike(for: nft.id)
-            }
-            tableView.reloadData()
+            self?.likeButtonTapped?(nft.id)
         }
         return cell
     }

@@ -16,8 +16,6 @@ final class FavoritesNftView: UIView {
         }
     }
     
-    private let likesStorage = LikesStorageImpl.shared
-    
     private lazy var placeholderLabel: UILabel = {
         let label = UILabel()
         label.text = NSLocalizedString("noFavoritesNFTs", comment: "")
@@ -39,8 +37,6 @@ final class FavoritesNftView: UIView {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .systemBackground
         collectionView.register(NFTCollectionCell.self, forCellWithReuseIdentifier: NFTCollectionCell.reuseIdentifier)
-        collectionView.dataSource = self
-        collectionView.delegate = self
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
     }()
@@ -75,42 +71,18 @@ final class FavoritesNftView: UIView {
         ])
     }
     
-    func updateUI() {
+    private func updateUI() {
         collectionView.reloadData()
         collectionView.isHidden = nftItems.isEmpty
     }
     
     func updateNFTs(with nfts: [MyNFT]) {
         nftItems = nfts
-    }
-}
-
-extension FavoritesNftView: UICollectionViewDataSource, UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return nftItems.count
+        updateUI()
     }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: NFTCollectionCell.reuseIdentifier,
-            for: indexPath
-        ) as? NFTCollectionCell else {
-            return UICollectionViewCell()
-        }
-        
-        let nft = nftItems[indexPath.item]
-        cell.configure(with: nft)
-        
-        cell.likeButtonTapped = { [weak self] in
-            guard let self = self else { return }
-            
-            self.likesStorage.removeLike(for: nft.id)
-            self.nftItems.removeAll { $0.id == nft.id }
-        }
-        
-        return cell
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    func setCollectionViewDataSourceDelegate(dataSource: UICollectionViewDataSource, delegate: UICollectionViewDelegate) {
+        collectionView.dataSource = dataSource
+        collectionView.delegate = delegate
     }
 }

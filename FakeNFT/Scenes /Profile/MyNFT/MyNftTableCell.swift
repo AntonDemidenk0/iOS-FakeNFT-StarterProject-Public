@@ -95,14 +95,6 @@ final class NFTCell: UITableViewCell {
         return stackView
     }()
     
-    private lazy var numberFormatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencySymbol = "ETH"
-        formatter.maximumFractionDigits = 2
-        return formatter
-    }()
-    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupViews()
@@ -153,7 +145,7 @@ final class NFTCell: UITableViewCell {
         ])
     }
     
-    func configure(with nft: MyNFT, isLiked: Bool) {
+    func configure(with nft: MyNFT, isLiked: Bool, formattedPrice: String) {
         
         let extractedName = nft.images.first.flatMap { imageURL in
             extractName(from: [imageURL])
@@ -168,7 +160,9 @@ final class NFTCell: UITableViewCell {
             authorLabel.text = "\(NSLocalizedString("by", comment: "")) \(authorName)"
         }
         
-        priceLabel?.text = "\(numberFormatter.string(from: nft.price as NSNumber) ?? "\(nft.price) ETH")"
+        if let priceLabel = priceLabel {
+            priceLabel.text = formattedPrice
+        }
         
         if let imageURL = nft.images.first, let url = URL(string: imageURL) {
             nftImageView.kf.setImage(with: url)

@@ -175,7 +175,8 @@ final class ProfileViewController: UIViewController {
             }
         }
         
-        dispatchGroup.notify(queue: .main) {
+        dispatchGroup.notify(queue: .main) { [weak self] in
+            guard let self = self else { return }
             self.enableUserInteraction()
             ProgressHUD.dismiss()
             
@@ -194,19 +195,19 @@ final class ProfileViewController: UIViewController {
         myNFTViewController.nfts = nfts
         myNFTViewController.hidesBottomBarWhenPushed = true
         myNFTViewController.saveLikes = { [weak self] in
-                guard let self = self else { return }
-                
-                let likes = likesStorage.getAllLikes()
-                
-                self.updateLikesOnServer(likes: likes) { result in
-                    switch result {
-                    case .success:
-                        self.profileView.updateLikesCountAndUI()
-                    case .failure(let error):
-                        print("Ошибка при отправке лайков на сервер: \(error)")
-                    }
+            guard let self = self else { return }
+            
+            let likes = likesStorage.getAllLikes()
+            
+            self.updateLikesOnServer(likes: likes) { result in
+                switch result {
+                case .success:
+                    self.profileView.updateLikesCountAndUI()
+                case .failure(let error):
+                    print("Ошибка при отправке лайков на сервер: \(error)")
                 }
             }
+        }
         navigationController.pushViewController(myNFTViewController, animated: true)
     }
     

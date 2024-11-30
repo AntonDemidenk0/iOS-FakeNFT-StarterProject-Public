@@ -211,7 +211,7 @@ extension ProfileView: UITableViewDelegate, UITableViewDataSource {
                 favoritesTapped()
             }           case 2:
             if let aboutDeveloper = aboutDeveloper {
-                aboutDeveloper("https://github.com/Yandex-Practicum/iOS-FakeNFT-StarterProject-Public")
+                aboutDeveloper("practicum.yandex.ru")
             }
         default:
             break

@@ -16,6 +16,7 @@ protocol LikesStorage: AnyObject {
 
 final class LikesStorageImpl: LikesStorage {
     static let shared = LikesStorageImpl()
+    private init() {}
     private var likedNfts: Set<String> = []
     private let syncQueue = DispatchQueue(label: "sync-likes-queue")
 
