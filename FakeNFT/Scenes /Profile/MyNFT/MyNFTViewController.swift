@@ -15,10 +15,25 @@ enum SortType: String {
 final class MyNFTViewController: UIViewController {
 
     var nfts: [MyNFT] = []
+    var saveLikes: (() -> Void)?
     private let sortTypeKey = "selectedSortType"
-
+    private let likesStorage = LikesStorageImpl.shared
+    
     override func loadView() {
-        self.view = MyNFTView()
+        let nftView = MyNFTView()
+        nftView.isLiked = { [weak self] id in
+            return self?.likesStorage.isLiked(id) ?? false
+        }
+        nftView.likeButtonTapped = { [weak self] id in
+            guard let self = self else { return }
+            if self.likesStorage.isLiked(id) {
+                self.likesStorage.removeLike(for: id)
+            } else {
+                self.likesStorage.saveLike(for: id)
+            }
+            nftView.nftTableView.reloadData()
+        }
+        view = nftView
     }
 
     override func viewDidLoad() {
@@ -32,7 +47,7 @@ final class MyNFTViewController: UIViewController {
         
         updateNFTView()
     }
-
+    
     private func setupNavigationBar() {
         title = NSLocalizedString("MyNFT", comment: "")
         navigationController?.navigationBar.tintColor = UIColor(named: "YBlackColor")
@@ -53,6 +68,7 @@ final class MyNFTViewController: UIViewController {
     }
 
     @objc private func backButtonTapped() {
+        saveLikes?()
         navigationController?.popViewController(animated: true)
     }
 
