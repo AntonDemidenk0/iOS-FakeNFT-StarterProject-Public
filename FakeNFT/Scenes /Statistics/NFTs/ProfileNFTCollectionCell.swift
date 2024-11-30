@@ -125,9 +125,9 @@ final class ProfileNFTCollectionCell: UICollectionViewCell {
         ratingStarsView.rating = nft.rating
         
         if profile.likes.contains(nft.id) {
-            self.likeButton.setImage(UIImage(named: "emptyHeart"), for: .normal)
-        } else {
             self.likeButton.setImage(UIImage(named: "filledHeart"), for: .normal)
+        } else {
+            self.likeButton.setImage(UIImage(named: "emptyHeart"), for: .normal)
         }
         
         if cart.nfts.contains(nft.id) {
