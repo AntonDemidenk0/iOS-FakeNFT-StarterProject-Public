@@ -120,7 +120,11 @@ final class ProfileNFTCollectionCell: UICollectionViewCell {
             }
         }
         
-        nameLabel.text = ProfileNFTCollectionCell.limitedText(nft.name, limit: 9)
+        let extractedName = nft.images.first.flatMap { urlString in
+            extractName(from: [urlString])
+        }
+        
+        nameLabel.text = extractedName
         priceLabel.text = "\(nft.price) ETH"
         ratingStarsView.rating = nft.rating
         
@@ -149,6 +153,13 @@ final class ProfileNFTCollectionCell: UICollectionViewCell {
         DispatchQueue.main.async {
             self.addToCartButton.setImage(add, for: .normal)
         }
+    }
+    
+    private func extractName(from images: [String]) -> String? {
+        guard let firstImage = images.first else { return nil }
+        let components = firstImage.split(separator: "/")
+        guard components.count > 2 else { return nil }
+        return String(components[components.count - 2])
     }
     
     // MARK: - Actions
