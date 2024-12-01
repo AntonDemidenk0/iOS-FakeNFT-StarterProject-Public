@@ -138,7 +138,7 @@ final class ProfileNFTCollectionCell: UICollectionViewCell {
     }
     
     func setLiked(isLiked: Bool) {
-        let like = isLiked ? UIImage(named: "emptyHeart") : UIImage(named: "filledHeart")
+        let like = isLiked ? UIImage(named: "filledHeart") : UIImage(named: "emptyHeart")
         DispatchQueue.main.async {
             self.likeButton.setImage(like, for: .normal)
         }
